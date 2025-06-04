@@ -149,8 +149,8 @@ export default function ArriveePage() {
         <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/20 via-transparent to-green-900/20" />
       </div>
 
-      {/* Header avec bouton retour */}
-      <div className="relative z-10 flex items-center justify-between p-4">
+      {/* Header avec bouton retour - position absolue */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4">
         <Link 
           href="/" 
           className="group flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105"
@@ -165,29 +165,29 @@ export default function ArriveePage() {
         </div>
       </div>
 
-      {/* Contenu principal avec layout fixe */}
-      <div className="relative z-10 flex flex-col h-[calc(100vh-80px)] px-4">
+      {/* Contenu principal centré */}
+      <div className="relative z-10 h-screen flex items-center justify-center p-4">
         
-        {/* Titre compact */}
-        <div className="text-center mb-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-1 tracking-tight">
-            <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
-              Arrivée
-            </span>
-          </h1>
-          <p className="text-base text-white/80">
-            Enregistrez votre arrivée dans nos locaux
-          </p>
-        </div>
-
-        {/* Container principal avec scroll */}
-        <div className="flex-1 flex flex-col items-center">
+        {/* Container centré avec titre et formulaire */}
+        <div className="w-full max-w-lg flex flex-col items-center">
           
-          {/* Box scrollable */}
-          <div className="w-full max-w-lg bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl flex flex-col max-h-[calc(100vh-280px)] pt-4">
+          {/* Titre */}
+          <div className="text-center mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 tracking-tight">
+              <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                Arrivée
+              </span>
+            </h1>
+            <p className="text-base text-white/80">
+              Enregistrez votre arrivée dans nos locaux
+            </p>
+          </div>
+
+          {/* Box du formulaire */}
+          <div className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl max-h-[70vh] flex flex-col">
 
             {/* Contenu scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 pb-4">
+            <div className="flex-1 overflow-y-auto p-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 
                 {/* Champs obligatoires */}
@@ -251,7 +251,7 @@ export default function ArriveePage() {
                   />
                 ))}
 
-                {/* Bouton de soumission compact */}
+                {/* Bouton de soumission */}
                 <motion.button
                   type="submit"
                   disabled={isLoading}
@@ -268,9 +268,9 @@ export default function ArriveePage() {
             </div>
           </div>
 
-          {/* Note RGPD toujours visible */}
-          <div className="mt-4 max-w-lg text-center flex-shrink-0">
-            <p className="text-white/60 text-xs leading-relaxed">
+          {/* Note RGPD */}
+          <div className="mt-4 text-center">
+            <p className="text-white/60 text-xs leading-relaxed max-w-md">
               Nous collectons vos données dans le cadre de la gestion des visiteurs, de la sécurité du personnel, 
               en cas d'incidents et d'autres raisons liées à la sûreté de nos locaux. Ces données seront conservées 
               pendant une durée de 1 an, puis supprimées après ce délai. Conformément au RGPD, vous pouvez à tout 
