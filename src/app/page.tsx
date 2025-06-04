@@ -1,102 +1,151 @@
-import Image from "next/image";
+'use client';
+
+import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowRight, Shield, Clock, Users, Settings, UserPlus, UserMinus } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function Home() {
+  // Déconnexion automatique des pages sécurisées
+  useEffect(() => {
+    // Supprimer les sessions d'authentification des pages sécurisées
+    sessionStorage.removeItem('depart_authenticated');
+    // Note: L'admin n'utilise pas sessionStorage, donc pas besoin de le nettoyer
+  }, []);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+    <div className="relative min-h-screen overflow-hidden">
+      {/* Background avec overlay moderne */}
+      <div className="absolute inset-0">
+        <Image 
+          src="/images/background.jpg" 
+          alt="background" 
+          fill
+          className="object-cover"
           priority
         />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 via-transparent to-purple-900/20" />
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Bouton Admin amélioré */}
+      <div className="absolute top-6 right-6 z-20">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Link 
+            href="/admin" 
+            className="group flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 backdrop-blur-xl border border-white/30 rounded-full text-white hover:from-indigo-500/30 hover:to-purple-500/30 transition-all duration-300 shadow-lg hover:shadow-xl"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <Shield className="w-5 h-5 text-indigo-300 group-hover:text-white transition-colors" />
+            <span className="text-sm font-semibold">Administration</span>
+          </Link>
+        </motion.div>
+      </div>
+
+      {/* Contenu principal */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+        
+        {/* Titre principal */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
+            Registre des
+            <span className="block bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Visiteurs
+            </span>
+          </h1>
+          <p className="text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+            Système moderne de gestion des entrées et sorties pour la sécurité de vos locaux
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+        {/* Carte principale moderne */}
+        <div className="w-full max-w-md">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+            
+            {/* Logo avec effet moderne */}
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-lg opacity-30" />
+                <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-4">
+                  <Image 
+                    src="/images/logo.png" 
+                    alt="logo" 
+                    width={120} 
+                    height={120}
+                    className="w-full h-auto"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Boutons d'action modernes */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1"
+              >
+                <Link 
+                  href="/arrivee" 
+                  className="group w-full flex items-center justify-center sm:justify-between px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  <span className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                    Arrivée
+                  </span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200 hidden sm:block" />
+                </Link>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1"
+              >
+                <Link 
+                  href="/depart" 
+                  className="group w-full flex items-center justify-center sm:justify-between px-6 py-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  <span className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-white rounded-full" />
+                    Départ
+                  </span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200 hidden sm:block" />
+                </Link>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+
+        {/* Fonctionnalités avec icônes */}
+        <div className="flex flex-wrap justify-center gap-6 mt-12 max-w-2xl">
+          <div className="flex items-center gap-2 text-white/70 text-sm">
+            <Shield className="w-4 h-4" />
+            <span>Sécurisé</span>
+          </div>
+          <div className="flex items-center gap-2 text-white/70 text-sm">
+            <Clock className="w-4 h-4" />
+            <span>Temps réel</span>
+          </div>
+          <div className="flex items-center gap-2 text-white/70 text-sm">
+            <Users className="w-4 h-4" />
+            <span>Multi-utilisateurs</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer moderne */}
+      <footer className="absolute bottom-0 left-0 right-0 p-6">
+        <div className="text-center">
+          <div className="bg-black/20 backdrop-blur-sm rounded-full px-6 py-3 inline-block">
+            <p className="text-white/60 text-sm">
+              © {new Date().getFullYear()} Registre des visiteurs. Tous droits réservés.
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

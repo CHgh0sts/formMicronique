@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  nom          String
+  prenom       String
+  societe      String?
+  email        String?
+  telephone    String?
+  motif        String?
+  reponses     String? // JSON string format: [{"questionId": "response"}, ...]
+  heureArrivee DateTime  @default(now())
+  heureDepart  DateTime?
+  estPresent   Boolean   @default(true)
+  arriveType   EntryType @default(VERIFY)
+  departType   EntryType @default(VERIFY)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  titre       String
+  type        QuestionType
+  options     String? // JSON string pour les options (select, radio, checkbox)
+  placeholder String?
+  required    Boolean      @default(false)
+  active      Boolean      @default(true)
+  ordre       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("questions")
+}
+
+enum QuestionType {
+  TEXT
+  EMAIL
+  TEL
+  TEXTAREA
+  SELECT
+  RADIO
+  CHECKBOX
+  NUMBER
+  DATE
+}
+
+enum EntryType {
+  VERIFY // Vérifié (par défaut)
+  MANUAL // Modifié manuellement
+  AUTO // Automatique (pour les départs auto-générés)
+}

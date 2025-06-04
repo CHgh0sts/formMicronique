@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /
+
+# FormMicro2 - Application privée de gestion des visiteurs
+# Non indexable par les moteurs de recherche 
