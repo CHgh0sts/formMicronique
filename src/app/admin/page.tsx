@@ -58,6 +58,7 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const [activeTab, setActiveTab] = useState<'dashboard' | 'questions' | 'users'>('dashboard');
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -188,15 +189,24 @@ export default function AdminPage() {
                     <Key className="w-4 h-4" />
                     Mot de passe
                   </label>
-                  <input
-                    ref={passwordInputRef}
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
-                    placeholder="Entrez le mot de passe"
-                  />
+                  <div className="relative">
+                    <input
+                      ref={passwordInputRef}
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+                      placeholder="Entrez le mot de passe"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/90 transition-colors duration-200"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Bouton de connexion */}
@@ -446,9 +456,13 @@ export default function AdminPage() {
     // Fonction pour convertir une date UTC en datetime-local français
     const toLocalDateTimeString = (dateString: string) => {
       const date = new Date(dateString);
-      const offset = date.getTimezoneOffset();
-      const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-      return localDate.toISOString().slice(0, 16);
+      // Créer une date locale sans conversion de timezone
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
     
     setEditUserForm({
@@ -462,33 +476,53 @@ export default function AdminPage() {
     if (!editingUser) return;
 
     try {
-      const updateData: any = {
-        heureArrivee: editUserForm.heureArrivee,
-        heureDepart: editUserForm.heureDepart || null
-      };
-
       // Fonction pour convertir une date UTC en datetime-local français
       const toLocalDateTimeString = (dateString: string) => {
         const date = new Date(dateString);
-        const offset = date.getTimezoneOffset();
-        const localDate = new Date(date.getTime() - (offset * 60 * 1000));
-        return localDate.toISOString().slice(0, 16);
+        // Créer une date locale sans conversion de timezone
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
       };
 
       // Vérifier si l'heure d'arrivée a été modifiée
       const originalArrivee = toLocalDateTimeString(editingUser.heureArrivee);
-      if (editUserForm.heureArrivee !== originalArrivee) {
-        updateData.arriveType = 'MANUAL';
-      }
+      const arriveeModified = editUserForm.heureArrivee !== originalArrivee;
 
       // Vérifier si l'heure de départ a été modifiée
       const originalDepart = editingUser.heureDepart ? toLocalDateTimeString(editingUser.heureDepart) : '';
-      if (editUserForm.heureDepart !== originalDepart) {
+      const departModified = editUserForm.heureDepart !== originalDepart;
+
+      const updateData: any = {};
+
+      // Mettre à jour l'heure d'arrivée seulement si modifiée
+      if (arriveeModified) {
+        updateData.heureArrivee = editUserForm.heureArrivee;
+        updateData.arriveType = 'MANUAL';
+      }
+
+      // Mettre à jour l'heure de départ seulement si modifiée
+      if (departModified) {
         if (editUserForm.heureDepart) {
+          updateData.heureDepart = editUserForm.heureDepart;
           updateData.departType = 'MANUAL';
         } else {
+          updateData.heureDepart = null;
           updateData.departType = 'VERIFY';
         }
+      }
+
+      // Vérifier s'il y a des modifications à envoyer
+      if (!arriveeModified && !departModified) {
+        toast.info('Aucune modification détectée', {
+          description: 'Les heures n\'ont pas été modifiées',
+        });
+        setEditingUser(null);
+        setEditUserForm({ heureArrivee: '', heureDepart: '' });
+        return;
       }
 
       const response = await fetch(`/api/users/${editingUser.id}`, {

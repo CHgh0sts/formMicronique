@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, User, Building, Clock, LogOut, Search, Lock, Key, Shield } from 'lucide-react';
+import { ArrowLeft, User, Building, Clock, LogOut, Search, Lock, Key, Shield, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,7 @@ export default function DepartPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [presentUsers, setPresentUsers] = useState<FoundUser[]>([]);
   const [currentTime, setCurrentTime] = useState('');
@@ -171,15 +172,24 @@ export default function DepartPage() {
                     <Key className="w-4 h-4" />
                     Mot de passe
                   </label>
-                  <input
-                    ref={passwordInputRef}
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all duration-200"
-                    placeholder="Entrez le mot de passe"
-                  />
+                  <div className="relative">
+                    <input
+                      ref={passwordInputRef}
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent transition-all duration-200"
+                      placeholder="Entrez le mot de passe"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/90 transition-colors duration-200"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Bouton de connexion */}

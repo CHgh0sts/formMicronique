@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import DynamicQuestion from '@/components/DynamicQuestion';
+import CameraTest from '@/components/CameraTest';
 
 // Utiliser le même type que dans DynamicQuestion
 type QuestionType = 'TEXT' | 'EMAIL' | 'TEL' | 'TEXTAREA' | 'SELECT' | 'RADIO' | 'CHECKBOX' | 'NUMBER' | 'DATE';
@@ -33,6 +34,8 @@ export default function ArriveePage() {
   const [customResponses, setCustomResponses] = useState<Record<string, string>>({});
   const [currentTime, setCurrentTime] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [recognizedUser, setRecognizedUser] = useState<any>(null);
+  const [shouldCaptureFace, setShouldCaptureFace] = useState(false);
 
   useEffect(() => {
     // Mettre à jour l'heure côté client
@@ -68,14 +71,19 @@ export default function ArriveePage() {
     setIsLoading(true);
 
     try {
-      // Préparer les réponses au format demandé
-      const reponses = Object.entries(customResponses).map(([questionId, response]) => ({
-        [questionId]: response
-      }));
-
-      const userData = {
+      // Si un utilisateur est reconnu, utiliser ses données
+      const userData = recognizedUser ? {
+        nom: recognizedUser.nom,
+        prenom: recognizedUser.prenom,
+        societe: recognizedUser.societe,
+        reponses: Object.entries(customResponses).map(([questionId, response]) => ({
+          [questionId]: response
+        }))
+      } : {
         ...formData,
-        reponses: reponses
+        reponses: Object.entries(customResponses).map(([questionId, response]) => ({
+          [questionId]: response
+        }))
       };
 
       const response = await fetch('/api/users', {
@@ -87,8 +95,25 @@ export default function ArriveePage() {
       });
 
       if (response.ok) {
+        const newUser = await response.json();
+        
+        // Déclencher la capture du visage pour sauvegarder l'embedding
+        if (!recognizedUser) {
+          setShouldCaptureFace(true);
+          // Attendre un peu pour que la capture se fasse
+          setTimeout(async () => {
+            try {
+              // Ici on pourrait capturer l'embedding depuis le composant de reconnaissance
+              console.log('Utilisateur créé, embedding à capturer pour:', newUser.id);
+            } catch (error) {
+              console.error('Erreur lors de la capture de l\'embedding:', error);
+            }
+            setShouldCaptureFace(false);
+          }, 1000);
+        }
+
         toast.success('Arrivée enregistrée avec succès !', {
-          description: `Bienvenue ${formData.prenom} ${formData.nom}`,
+          description: `Bienvenue ${userData.prenom} ${userData.nom}`,
           duration: 3000,
         });
         
@@ -99,6 +124,7 @@ export default function ArriveePage() {
           societe: ''
         });
         setCustomResponses({});
+        setRecognizedUser(null);
         
         // Redirection automatique après 2 secondes
         setTimeout(() => {
@@ -132,6 +158,25 @@ export default function ArriveePage() {
       ...customResponses,
       [questionId]: value
     });
+  };
+
+  const handleFaceRecognized = (result: any) => {
+    if (result.recognized && result.user) {
+      setRecognizedUser(result.user);
+      // Pré-remplir le formulaire avec les données reconnues
+      setFormData({
+        nom: result.user.nom,
+        prenom: result.user.prenom,
+        societe: result.user.societe || ''
+      });
+      
+      toast.success('Utilisateur reconnu !', {
+        description: `Bonjour ${result.user.prenom} ${result.user.nom}`,
+        duration: 3000,
+      });
+    } else {
+      setRecognizedUser(null);
+    }
   };
 
   return (
@@ -181,6 +226,13 @@ export default function ArriveePage() {
             <p className="text-base text-white/80">
               Enregistrez votre arrivée dans nos locaux
             </p>
+            {recognizedUser && (
+              <div className="mt-2 p-2 bg-green-500/20 border border-green-500/30 rounded-lg">
+                <p className="text-green-400 text-sm">
+                  ✓ Utilisateur reconnu : {recognizedUser.prenom} {recognizedUser.nom}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Box du formulaire */}
@@ -203,7 +255,10 @@ export default function ArriveePage() {
                       value={formData.nom}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-sm"
+                      readOnly={!!recognizedUser}
+                      className={`w-full px-3 py-2 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-sm ${
+                        recognizedUser ? 'bg-green-500/20 cursor-not-allowed' : 'bg-white/10'
+                      }`}
                       placeholder="Votre nom"
                     />
                   </div>
@@ -219,7 +274,10 @@ export default function ArriveePage() {
                       value={formData.prenom}
                       onChange={handleChange}
                       required
-                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-sm"
+                      readOnly={!!recognizedUser}
+                      className={`w-full px-3 py-2 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-sm ${
+                        recognizedUser ? 'bg-green-500/20 cursor-not-allowed' : 'bg-white/10'
+                      }`}
                       placeholder="Votre prénom"
                     />
                   </div>
@@ -236,7 +294,10 @@ export default function ArriveePage() {
                     value={formData.societe}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-sm"
+                    readOnly={!!recognizedUser}
+                    className={`w-full px-3 py-2 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-sm ${
+                      recognizedUser ? 'bg-green-500/20 cursor-not-allowed' : 'bg-white/10'
+                    }`}
                     placeholder="Nom de votre société"
                   />
                 </div>
