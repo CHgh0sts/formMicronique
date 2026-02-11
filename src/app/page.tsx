@@ -57,7 +57,7 @@ export default function Home() {
             </span>
           </h1>
           <p className="text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-            Système moderne de gestion des entrées et sorties pour la sécurité de vos locaux
+            Gestion des <span className="text-green-400 font-semibold">entrées</span> et <span className="text-red-400 font-semibold">sorties</span> pour la sécurité de vos locaux
           </p>
         </div>
 
