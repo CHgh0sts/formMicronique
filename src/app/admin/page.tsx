@@ -498,16 +498,21 @@ export default function AdminPage() {
 
       const updateData: any = {};
 
+      // Convertir les heures saisies (heure locale) en ISO UTC pour que le serveur enregistre le bon instant.
+      // Sinon "14:00" serait interprété comme 14:00 UTC côté serveur et s'afficherait 15:00 en France.
+      const localToISO = (datetimeLocal: string) =>
+        new Date(datetimeLocal).toISOString();
+
       // Mettre à jour l'heure d'arrivée seulement si modifiée
       if (arriveeModified) {
-        updateData.heureArrivee = editUserForm.heureArrivee;
+        updateData.heureArrivee = localToISO(editUserForm.heureArrivee);
         updateData.arriveType = 'MANUAL';
       }
 
       // Mettre à jour l'heure de départ seulement si modifiée
       if (departModified) {
         if (editUserForm.heureDepart) {
-          updateData.heureDepart = editUserForm.heureDepart;
+          updateData.heureDepart = localToISO(editUserForm.heureDepart);
           updateData.departType = 'MANUAL';
         } else {
           updateData.heureDepart = null;
