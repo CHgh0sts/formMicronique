@@ -28,9 +28,6 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // Relation avec les embeddings faciaux
-  faceEmbeddings FaceEmbedding[]
-
   @@map("users")
 }
 
@@ -47,20 +44,6 @@ model Question {
   updatedAt   DateTime     @updatedAt
 
   @@map("questions")
-}
-
-model FaceEmbedding {
-  id         String   @id @default(cuid())
-  userId     String
-  embedding  Float[] // Vecteur de caractéristiques faciales (128 ou 512 dimensions)
-  confidence Float // Score de confiance lors de l'extraction
-  imageData  String? // Image encodée en base64 (optionnel, pour debug)
-  createdAt  DateTime @default(now())
-
-  // Relation avec l'utilisateur
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("face_embeddings")
 }
 
 enum QuestionType {
