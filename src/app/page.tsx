@@ -142,7 +142,7 @@ export default function Home() {
         <div className="text-center">
           <div className="bg-black/20 backdrop-blur-sm rounded-full px-6 py-3 inline-block">
             <p className="text-white/60 text-sm">
-              © {new Date().getFullYear()} Registre des visiteurs. Tous droits réservés.
+              © {new Date().getFullYear()} Registre des visiteurs. Tous droits réservés. Fait par CHghosts
             </p>
           </div>
         </div>
