@@ -57,4 +57,23 @@ export async function PUT(
       { status: 500 }
     );
   }
+}
+
+export async function DELETE(
+  _request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+    await prisma.user.delete({
+      where: { id },
+    });
+    return NextResponse.json({ message: 'Utilisateur supprimé avec succès' });
+  } catch (error) {
+    console.error('Erreur lors de la suppression de l\'utilisateur:', error);
+    return NextResponse.json(
+      { error: 'Erreur lors de la suppression de l\'utilisateur' },
+      { status: 500 }
+    );
+  }
 } 

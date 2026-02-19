@@ -65,6 +65,10 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deletePasswordVisible, setDeletePasswordVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showQuestionForm, setShowQuestionForm] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [questionForm, setQuestionForm] = useState<QuestionForm>({
@@ -562,6 +566,44 @@ export default function AdminPage() {
     setEditUserForm({ heureArrivee: '', heureDepart: '' });
   };
 
+  const handleConfirmDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userToDelete) return;
+    if (deletePassword !== 'micronique') {
+      toast.error('Mot de passe incorrect', {
+        description: 'Veuillez saisir le mot de passe administrateur pour confirmer la suppression.',
+      });
+      return;
+    }
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/users/${userToDelete.id}`, { method: 'DELETE' });
+      if (response.ok) {
+        toast.success('Visiteur supprimé', {
+          description: `${userToDelete.prenom} ${userToDelete.nom} a été supprimé de la liste.`,
+        });
+        fetchUsers();
+        fetchStats();
+        setUserToDelete(null);
+        setDeletePassword('');
+      } else {
+        const data = await response.json();
+        toast.error('Erreur', { description: data.error || 'Impossible de supprimer le visiteur.' });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Erreur de connexion', { description: 'Impossible de contacter le serveur.' });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const closeDeleteModal = () => {
+    setUserToDelete(null);
+    setDeletePassword('');
+    setDeletePasswordVisible(false);
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Background avec overlay */}
@@ -988,6 +1030,15 @@ export default function AdminPage() {
                             >
                               {selectedUser?.id === user.id ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </motion.button>
+                            <motion.button
+                              onClick={() => setUserToDelete(user)}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                              title="Supprimer le visiteur"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </motion.button>
                           </div>
                         </div>
 
@@ -1030,6 +1081,63 @@ export default function AdminPage() {
                   )}
                 </div>
               </div>
+
+              {/* Modal de confirmation de suppression */}
+              {userToDelete && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                  <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full">
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      Supprimer le visiteur
+                    </h3>
+                    <p className="text-white/80 text-sm mb-6">
+                      Vous êtes sur le point de supprimer <strong>{userToDelete.prenom} {userToDelete.nom}</strong>. Cette action est irréversible. Entrez le mot de passe administrateur pour confirmer.
+                    </p>
+                    <form onSubmit={handleConfirmDelete} className="space-y-4">
+                      <div>
+                        <label className="flex items-center gap-2 text-white/90 text-sm font-medium mb-2">
+                          <Key className="w-4 h-4" />
+                          Mot de passe
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={deletePasswordVisible ? 'text' : 'password'}
+                            value={deletePassword}
+                            onChange={(e) => setDeletePassword(e.target.value)}
+                            required
+                            placeholder="Mot de passe administrateur"
+                            className="w-full px-4 py-3 pr-12 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-red-400"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setDeletePasswordVisible(!deletePasswordVisible)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white/90 transition-colors"
+                          >
+                            {deletePasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex gap-4 pt-4">
+                        <button
+                          type="button"
+                          onClick={closeDeleteModal}
+                          disabled={isDeleting}
+                          className="flex-1 py-3 bg-white/10 border border-white/20 text-white rounded-xl hover:bg-white/20 transition-all duration-200 disabled:opacity-50"
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isDeleting}
+                          className="flex-1 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl hover:from-red-600 hover:to-rose-700 transition-all duration-200 disabled:opacity-50"
+                        >
+                          {isDeleting ? 'Suppression...' : 'Supprimer'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
 
               {/* Modal d'édition des heures */}
               {editingUser && (
