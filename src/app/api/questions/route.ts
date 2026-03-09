@@ -27,7 +27,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { titre, type, options, placeholder, required, active, ordre } = body
+    const { titre, type, options, placeholder, required, active, ordre, zoneId } = body
 
     const question = await prisma.question.create({
       data: {
@@ -37,7 +37,8 @@ export async function POST(request: NextRequest) {
         placeholder,
         required: required || false,
         active: active !== undefined ? active : true,
-        ordre: ordre || 0
+        ordre: ordre || 0,
+        zoneId: typeof zoneId === 'number' ? zoneId : null,
       }
     })
 

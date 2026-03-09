@@ -33,6 +33,7 @@ export default function ArriveePage() {
   const [customResponses, setCustomResponses] = useState<Record<string, string>>({});
   const [currentTime, setCurrentTime] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isQuestionsLoading, setIsQuestionsLoading] = useState(true);
 
   useEffect(() => {
     // Mettre à jour l'heure côté client
@@ -47,16 +48,26 @@ export default function ArriveePage() {
   }, []);
 
   useEffect(() => {
-    // Charger les questions personnalisées
+    // Charger les questions personnalisées (globales + celles de la zone de l'appareil)
     const fetchQuestions = async () => {
       try {
-        const response = await fetch('/api/questions');
+        setIsQuestionsLoading(true);
+        // S'assurer que l'appareil est bien identifié et que le cookie existe
+        try {
+          await fetch('/api/device', { method: 'POST' });
+        } catch {
+          // On ignore les erreurs ici, on tombera alors sur les questions globales uniquement
+        }
+
+        const response = await fetch('/api/questions/for-arrivee');
         if (response.ok) {
           const questionsData = await response.json();
           setQuestions(questionsData);
         }
       } catch (error) {
         console.error('Erreur lors du chargement des questions:', error);
+      } finally {
+        setIsQuestionsLoading(false);
       }
     };
 
@@ -191,7 +202,7 @@ export default function ArriveePage() {
                   <div className="space-y-1">
                     <label className="text-white/90 text-xs font-medium flex items-center gap-2">
                       <User className="w-3 h-3" />
-                      Nom *
+                      Nom <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -207,7 +218,7 @@ export default function ArriveePage() {
                   <div className="space-y-1">
                     <label className="text-white/90 text-xs font-medium flex items-center gap-2">
                       <User className="w-3 h-3" />
-                      Prénom *
+                      Prénom <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -224,7 +235,7 @@ export default function ArriveePage() {
                 <div className="space-y-1">
                   <label className="text-white/90 text-xs font-medium flex items-center gap-2">
                     <Building className="w-3 h-3" />
-                    Société *
+                    Société <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -238,14 +249,21 @@ export default function ArriveePage() {
                 </div>
 
                 {/* Questions personnalisées */}
-                {questions.map((question) => (
-                  <DynamicQuestion
-                    key={question.id}
-                    question={question}
-                    value={customResponses[question.id] || ''}
-                    onChange={handleCustomQuestionChange}
-                  />
-                ))}
+                {isQuestionsLoading ? (
+                  <div className="mt-4 py-8 flex flex-col items-center justify-center text-white/80">
+                    <div className="w-8 h-8 border-2 border-white/30 border-t-green-400 rounded-full animate-spin mb-3" />
+                    <p className="text-sm font-medium">Chargement...</p>
+                  </div>
+                ) : (
+                  questions.map((question) => (
+                    <DynamicQuestion
+                      key={question.id}
+                      question={question}
+                      value={customResponses[question.id] || ''}
+                      onChange={handleCustomQuestionChange}
+                    />
+                  ))
+                )}
 
                 {/* Bouton de soumission */}
                 <motion.button

@@ -43,7 +43,33 @@ model Question {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  // Relation optionnelle avec une zone
+  zoneId      Int?
+  zone        Zone?        @relation(fields: [zoneId], references: [id])
+
   @@map("questions")
+}
+
+model Zone {
+  id        Int        @id @default(autoincrement())
+  nom       String
+
+  // Une zone peut avoir plusieurs appareils et plusieurs questions
+  appareils Apareil[]
+  questions Question[]
+
+  @@map("zones")
+}
+
+model Apareil {
+  id     Int   @id @default(autoincrement())
+  nom    String
+
+  // Appareil relié à une zone (obligatoire)
+  zoneId Int
+  zone   Zone @relation(fields: [zoneId], references: [id])
+
+  @@map("apareils")
 }
 
 enum QuestionType {

@@ -9,7 +9,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json()
-    const { titre, type, options, placeholder, required, active, ordre } = body
+    const { titre, type, options, placeholder, required, active, ordre, zoneId } = body
 
     const question = await prisma.question.update({
       where: { id },
@@ -20,7 +20,8 @@ export async function PUT(
         placeholder,
         required: required || false,
         active: active !== undefined ? active : true,
-        ordre: ordre || 0
+        ordre: ordre || 0,
+        zoneId: typeof zoneId === 'number' ? zoneId : null,
       }
     })
 

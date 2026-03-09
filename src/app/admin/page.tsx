@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Users, Download, Settings, BarChart3, Clock, Shield, Plus, Edit, Trash2, Eye, EyeOff, Lock, Key } from 'lucide-react';
+import { ArrowLeft, Users, Download, Settings, BarChart3, Clock, Shield, Plus, Edit, Trash2, Eye, EyeOff, Lock, Key, Smartphone, Signpost, Check, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
@@ -21,6 +21,22 @@ interface Question {
   required: boolean;
   active: boolean;
   ordre: number;
+  zoneId?: number | null;
+}
+
+interface Apareil {
+  id: number;
+  nom: string;
+  zoneId: number;
+  zone?: {
+    id: number;
+    nom: string;
+  } | null;
+}
+
+interface Zone {
+  id: number;
+  nom: string;
 }
 
 interface User {
@@ -46,6 +62,7 @@ interface QuestionForm {
   placeholder: string;
   required: boolean;
   active: boolean;
+  zoneId: number | null;
 }
 
 interface EditUserForm {
@@ -60,9 +77,21 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'questions' | 'users'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'questions' | 'users' | 'zones' | 'apareils'>('dashboard');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [apareils, setApareils] = useState<Apareil[]>([]);
+  const [currentDeviceId, setCurrentDeviceId] = useState<number | null>(null);
+  const [editingApareilId, setEditingApareilId] = useState<number | null>(null);
+  const [editingApareilNom, setEditingApareilNom] = useState('');
+  const [zones, setZones] = useState<Zone[]>([]);
+  const [isZoneModalOpen, setIsZoneModalOpen] = useState(false);
+  const [newZoneLabel, setNewZoneLabel] = useState('');
+  const [editingZoneIdForTab, setEditingZoneIdForTab] = useState<number | null>(null);
+  const [editingZoneNomForTab, setEditingZoneNomForTab] = useState('');
+  const [editingZoneApareilId, setEditingZoneApareilId] = useState<number | null>(null);
+  const [editingZoneId, setEditingZoneId] = useState<number | null>(null);
+  const [newZoneName, setNewZoneName] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -77,7 +106,8 @@ export default function AdminPage() {
     options: [],
     placeholder: '',
     required: false,
-    active: true
+    active: true,
+    zoneId: null,
   });
   const [editUserForm, setEditUserForm] = useState<EditUserForm>({
     heureArrivee: '',
@@ -95,6 +125,9 @@ export default function AdminPage() {
       fetchQuestions();
       fetchUsers();
       fetchStats();
+      fetchApareils();
+      fetchCurrentDevice();
+      fetchZones();
     }
   }, [isAuthenticated]);
 
@@ -306,6 +339,60 @@ export default function AdminPage() {
     }
   };
 
+  const fetchApareils = async () => {
+    try {
+      const response = await fetch('/api/apareils');
+      if (response.ok) {
+        const data = await response.json();
+        setApareils(data);
+      } else {
+        toast.error('Erreur lors du chargement des appareils', {
+          description: 'Impossible de récupérer la liste des appareils',
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des appareils:', error);
+      toast.error('Erreur de connexion', {
+        description: 'Impossible de contacter le serveur',
+      });
+    }
+  };
+
+  const fetchZones = async () => {
+    try {
+      const response = await fetch('/api/zones');
+      if (response.ok) {
+        const data = await response.json();
+        setZones(data);
+      } else {
+        toast.error('Erreur lors du chargement des zones', {
+          description: 'Impossible de récupérer la liste des zones',
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des zones:', error);
+      toast.error('Erreur de connexion', {
+        description: 'Impossible de contacter le serveur',
+      });
+    }
+  };
+
+  const fetchCurrentDevice = async () => {
+    try {
+      const response = await fetch('/api/device', { method: 'POST' });
+      if (response.ok) {
+        const data = await response.json();
+        const id = Number(data.deviceId);
+        if (!Number.isNaN(id)) {
+          setCurrentDeviceId(id);
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'appareil courant:', error);
+      // On ne bloque pas l'admin si l'appel échoue
+    }
+  };
+
   // Gestion des questions
   const handleQuestionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -374,7 +461,8 @@ export default function AdminPage() {
       options: question.options ? JSON.parse(question.options) : [],
       placeholder: question.placeholder || '',
       required: question.required,
-      active: question.active
+      active: question.active,
+      zoneId: question.zoneId ?? null,
     });
     setShowQuestionForm(true);
   };
@@ -413,7 +501,8 @@ export default function AdminPage() {
       options: [],
       placeholder: '',
       required: false,
-      active: true
+      active: true,
+      zoneId: null,
     });
     setEditingQuestion(null);
     setShowQuestionForm(false);
@@ -645,9 +734,6 @@ export default function AdminPage() {
               Administration
             </span>
           </h1>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto">
-            Gestion des questions et visualisation des visiteurs
-          </p>
         </div>
 
         {/* Navigation par onglets */}
@@ -657,7 +743,9 @@ export default function AdminPage() {
               {[
                 { id: 'dashboard', label: 'Tableau de bord', icon: BarChart3 },
                 { id: 'questions', label: 'Questions', icon: Settings },
-                { id: 'users', label: 'Visiteurs', icon: Users }
+                { id: 'users', label: 'Visiteurs', icon: Users },
+                { id: 'zones', label: 'Zones', icon: Signpost },
+                { id: 'apareils', label: 'Appareils', icon: Smartphone }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -813,15 +901,47 @@ export default function AdminPage() {
                         </select>
                       </div>
 
+                      {questionForm.type !== 'CHECKBOX' && questionForm.type !== 'RADIO' && (
+                        <div>
+                          <label className="block text-white/90 text-sm font-medium mb-2">Placeholder</label>
+                          <input
+                            type="text"
+                            value={questionForm.placeholder}
+                            onChange={(e) => setQuestionForm({ ...questionForm, placeholder: e.target.value })}
+                            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            placeholder="Texte d'aide"
+                          />
+                        </div>
+                      )}
+
+                      {/* Zones associées */}
                       <div>
-                        <label className="block text-white/90 text-sm font-medium mb-2">Placeholder</label>
-                        <input
-                          type="text"
-                          value={questionForm.placeholder}
-                          onChange={(e) => setQuestionForm({ ...questionForm, placeholder: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                          placeholder="Texte d'aide"
-                        />
+                        <label className="block text-white/90 text-sm font-medium mb-2">
+                          Zone associée
+                        </label>
+                        <select
+                          value={questionForm.zoneId ?? ''}
+                          onChange={(e) =>
+                            setQuestionForm({
+                              ...questionForm,
+                              zoneId: e.target.value === '' ? null : Number(e.target.value),
+                            })
+                          }
+                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                          aria-label="Zone associée à la question"
+                        >
+                          <option value="" className="bg-gray-800">
+                            Aucune zone spécifique (question globale)
+                          </option>
+                          {zones.map((zone) => (
+                            <option key={zone.id} value={zone.id} className="bg-gray-800">
+                              {zone.nom}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-white/60 text-xs mt-1">
+                          Si aucune zone n'est sélectionnée, la question sera utilisée partout.
+                        </p>
                       </div>
 
                       {/* Options pour SELECT, RADIO, CHECKBOX */}
@@ -936,6 +1056,625 @@ export default function AdminPage() {
             </div>
           )}
 
+          {/* Gestion des zones */}
+          {activeTab === 'zones' && (
+            <div className="space-y-6 h-full flex flex-col">
+              <div className="flex justify-between items-center flex-shrink-0">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Zones</h2>
+                  <p className="text-white/60 text-sm mt-1">
+                    Gestion des zones physiques (étages, bâtiments, secteurs, etc.)
+                  </p>
+                </div>
+                <div>
+                  <motion.button
+                    type="button"
+                    onClick={() => {
+                      setNewZoneLabel('');
+                      setIsZoneModalOpen(true);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Nouvelle zone
+                  </motion.button>
+                </div>
+              </div>
+
+              <div className="flex-1 min-h-0">
+                <div className="h-full max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  {zones.length === 0 ? (
+                    <div className="h-full flex items-center justify-center bg-white/5 border border-dashed border-white/20 rounded-2xl">
+                      <p className="text-white/60 text-sm text-center px-6">
+                        Aucune zone configurée pour le moment. Créez une première zone pour
+                        organiser vos appareils et vos questions.
+                      </p>
+                    </div>
+                  ) : (
+                    zones.map((zone) => {
+                      const isEditing = editingZoneIdForTab === zone.id;
+
+                      return (
+                        <div
+                          key={zone.id}
+                          className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-6 py-3 flex items-center justify-between gap-4 transition-all duration-200 hover:bg-white/15"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600">
+                              <Signpost className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editingZoneNomForTab}
+                                  onChange={(e) => setEditingZoneNomForTab(e.target.value)}
+                                  className="px-2 py-1 rounded-md bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                  aria-label="Nom de la zone"
+                                  placeholder="Nom de la zone"
+                                />
+                              ) : (
+                                <p className="text-white font-medium text-sm">{zone.nom}</p>
+                              )}
+                              <p className="text-white/40 text-[11px] mt-0.5">ID #{zone.id}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {isEditing ? (
+                              <>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={async () => {
+                                    const name = editingZoneNomForTab.trim();
+                                    if (!name) {
+                                      toast.error('Le nom de la zone ne peut pas être vide');
+                                      return;
+                                    }
+                                    try {
+                                      const res = await fetch(`/api/zones/${zone.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ nom: name }),
+                                      });
+                                      if (res.ok) {
+                                        toast.success('Zone renommée avec succès');
+                                        setEditingZoneIdForTab(null);
+                                        setEditingZoneNomForTab('');
+                                        fetchZones();
+                                      } else {
+                                        const data = await res.json();
+                                        toast.error('Erreur lors du renommage de la zone', {
+                                          description: data.error || 'Impossible de renommer la zone',
+                                        });
+                                      }
+                                    } catch (error) {
+                                      console.error('Erreur renommage zone:', error);
+                                      toast.error('Erreur de connexion', {
+                                        description: 'Impossible de contacter le serveur',
+                                      });
+                                    }
+                                  }}
+                                  className="p-2 text-emerald-400 hover:bg-emerald-500/20 rounded-lg transition-all duration-200"
+                                  aria-label="Sauvegarder le nouveau nom de la zone"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </motion.button>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => {
+                                    setEditingZoneIdForTab(null);
+                                    setEditingZoneNomForTab('');
+                                  }}
+                                  className="p-2 text-white/70 hover:bg-white/15 rounded-lg transition-all duration-200"
+                                  aria-label="Annuler le renommage de la zone"
+                                >
+                                  <X className="w-4 h-4" />
+                                </motion.button>
+                              </>
+                            ) : (
+                              <>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => {
+                                    setEditingZoneIdForTab(zone.id);
+                                    setEditingZoneNomForTab(zone.nom);
+                                  }}
+                                  className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+                                  aria-label="Renommer la zone"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </motion.button>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={async () => {
+                                    const confirmDelete = window.confirm(
+                                      `Voulez-vous vraiment supprimer la zone "${zone.nom}" ?`
+                                    );
+                                    if (!confirmDelete) return;
+
+                                    try {
+                                      const res = await fetch(`/api/zones/${zone.id}`, {
+                                        method: 'DELETE',
+                                      });
+                                      if (res.ok) {
+                                        toast.success('Zone supprimée avec succès');
+                                        setZones((prev) => prev.filter((z) => z.id !== zone.id));
+                                      } else {
+                                        const data = await res.json();
+                                        toast.error('Erreur lors de la suppression de la zone', {
+                                          description: data.error || 'Impossible de supprimer la zone',
+                                        });
+                                      }
+                                    } catch (error) {
+                                      console.error('Erreur suppression zone:', error);
+                                      toast.error('Erreur de connexion', {
+                                        description: 'Impossible de contacter le serveur',
+                                      });
+                                    }
+                                  }}
+                                  className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                                  aria-label="Supprimer la zone"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </motion.button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Modal de création de zone */}
+              {isZoneModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                  <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full">
+                    <h3 className="text-2xl font-bold text-white mb-2">
+                      Créer une zone
+                    </h3>
+                    <p className="text-white/80 text-sm mb-6">
+                      Donnez un nom clair à cette zone pour vous y retrouver facilement (ex: Accueil, Étage 1, Hall principal...).
+                    </p>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        const name = newZoneLabel.trim();
+                        if (!name) {
+                          toast.error('Le nom de la zone est requis');
+                          return;
+                        }
+                        try {
+                          const res = await fetch('/api/zones', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nom: name }),
+                          });
+                          if (res.ok) {
+                            const created = await res.json();
+                            setZones((prev) => [...prev, created]);
+                            setNewZoneLabel('');
+                            setIsZoneModalOpen(false);
+                            toast.success('Zone créée avec succès');
+                          } else {
+                            const data = await res.json();
+                            toast.error('Erreur lors de la création de la zone', {
+                              description: data.error || 'Impossible de créer la zone',
+                            });
+                          }
+                        } catch (error) {
+                          console.error('Erreur création zone:', error);
+                          toast.error('Erreur de connexion', {
+                            description: 'Impossible de contacter le serveur',
+                          });
+                        }
+                      }}
+                      className="space-y-4"
+                    >
+                      <div>
+                        <label className="block text-white/90 text-sm font-medium mb-2">
+                          Nom de la zone
+                        </label>
+                        <input
+                          type="text"
+                          value={newZoneLabel}
+                          onChange={(e) => setNewZoneLabel(e.target.value)}
+                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                          placeholder="Ex: Accueil, Étage 1, Bâtiment B..."
+                          autoFocus
+                        />
+                      </div>
+                      <div className="flex gap-4 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsZoneModalOpen(false);
+                            setNewZoneLabel('');
+                          }}
+                          className="flex-1 py-3 bg-white/10 border border-white/20 text-white rounded-xl hover:bg-white/20 transition-all duration-200"
+                        >
+                          Annuler
+                        </button>
+                        <button
+                          type="submit"
+                          className="flex-1 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
+                        >
+                          Créer la zone
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Gestion des appareils */}
+          {activeTab === 'apareils' && (
+            <div className="space-y-6 h-full flex flex-col">
+              <div className="flex justify-between items-center flex-shrink-0">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Appareils</h2>
+                  <p className="text-white/60 text-sm mt-1">
+                    Liste des appareils reliés aux zones (tablettes, bornes, etc.)
+                  </p>
+                </div>
+                {currentDeviceId && (
+                  <div className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-medium flex items-center gap-2">
+                    <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Cet appareil est identifié
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 min-h-0">
+                {apareils.length === 0 ? (
+                  <div className="h-full max-h-[60vh] flex items-center justify-center bg-white/5 border border-dashed border-white/20 rounded-2xl">
+                    <p className="text-white/60 text-sm text-center px-6">
+                      Aucun appareil enregistré pour le moment. Ils seront créés automatiquement
+                      lors de la première utilisation du site sur un nouvel appareil.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="h-full max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                    {apareils.map((apareil) => {
+                      const isCurrent = currentDeviceId === apareil.id;
+                      const isEditing = editingApareilId === apareil.id;
+                      return (
+                        <div key={apareil.id} className="space-y-2">
+                          <div
+                            className={`bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-6 py-3 flex items-center justify-between transition-all duration-200 hover:bg-white/15 ${
+                              isCurrent ? 'border-emerald-400 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]' : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700">
+                                <Smartphone className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  {isEditing ? (
+                                    <input
+                                      type="text"
+                                      value={editingApareilNom}
+                                      onChange={(e) => setEditingApareilNom(e.target.value)}
+                                      className="px-2 py-1 rounded-md bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                      aria-label="Nom de l'appareil"
+                                      placeholder="Nom de l'appareil"
+                                    />
+                                  ) : (
+                                    <p className="text-white font-medium text-sm">
+                                      {apareil.nom}
+                                    </p>
+                                  )}
+                                  {isCurrent && (
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 text-[11px] font-semibold uppercase tracking-wide">
+                                      Cet appareil
+                                    </span>
+                                  )}
+                                </div>
+                                <p
+                                  className={`text-xs ${
+                                    !apareil.zone || apareil.zone.nom === 'Zone par défaut'
+                                      ? 'text-red-300'
+                                      : 'text-white/60'
+                                  }`}
+                                >
+                                  Zone :{' '}
+                                  {!apareil.zone || apareil.zone.nom === 'Zone par défaut'
+                                    ? 'Pas de zone attribuée'
+                                    : apareil.zone.nom}
+                                </p>
+                                <p className="text-white/40 text-[11px] mt-0.5">
+                                  ID #{apareil.id}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {isEditing ? (
+                                <>
+                                  <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={async () => {
+                                      const newName = editingApareilNom.trim();
+                                      if (!newName) {
+                                        toast.error('Le nom de l\'appareil ne peut pas être vide');
+                                        return;
+                                      }
+                                      try {
+                                        const res = await fetch(`/api/apareils/${apareil.id}`, {
+                                          method: 'PUT',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ nom: newName }),
+                                        });
+                                        if (res.ok) {
+                                          toast.success('Appareil renommé avec succès');
+                                          setEditingApareilId(null);
+                                          setEditingApareilNom('');
+                                          fetchApareils();
+                                        } else {
+                                          const data = await res.json();
+                                          toast.error('Erreur lors du renommage', {
+                                            description: data.error || 'Impossible de renommer l\'appareil',
+                                          });
+                                        }
+                                      } catch (error) {
+                                        console.error('Erreur renommage appareil:', error);
+                                        toast.error('Erreur de connexion', {
+                                          description: 'Impossible de contacter le serveur',
+                                        });
+                                      }
+                                    }}
+                                    className="p-2 text-emerald-400 hover:bg-emerald-500/20 rounded-lg transition-all duration-200"
+                                    aria-label="Sauvegarder le nouveau nom de l'appareil"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </motion.button>
+                                  <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => {
+                                      setEditingApareilId(null);
+                                      setEditingApareilNom('');
+                                    }}
+                                    className="p-2 text-white/70 hover:bg-white/15 rounded-lg transition-all duration-200"
+                                    aria-label="Annuler le renommage de l'appareil"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </motion.button>
+                                </>
+                              ) : (
+                                <>
+                                  <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => {
+                                      setEditingApareilId(apareil.id);
+                                      setEditingApareilNom(apareil.nom);
+                                    }}
+                                    className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+                                    aria-label="Renommer l'appareil"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </motion.button>
+                                  <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={async () => {
+                                      const confirmDelete = window.confirm(
+                                        `Voulez-vous vraiment supprimer l'appareil "${apareil.nom}" ?`
+                                      );
+                                      if (!confirmDelete) return;
+
+                                      try {
+                                        const res = await fetch(`/api/apareils/${apareil.id}`, {
+                                          method: 'DELETE',
+                                        });
+                                        if (res.ok) {
+                                          toast.success('Appareil supprimé avec succès');
+                                          fetchApareils();
+                                        } else {
+                                          const data = await res.json();
+                                          toast.error('Erreur lors de la suppression', {
+                                            description: data.error || 'Impossible de supprimer l\'appareil',
+                                          });
+                                        }
+                                      } catch (error) {
+                                        console.error('Erreur suppression appareil:', error);
+                                        toast.error('Erreur de connexion', {
+                                          description: 'Impossible de contacter le serveur',
+                                        });
+                                      }
+                                    }}
+                                    className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                                    aria-label="Supprimer l'appareil"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </motion.button>
+                                  <motion.button
+                                    type="button"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    onClick={() => {
+                                      setEditingZoneApareilId(apareil.id);
+                                      setEditingZoneId(apareil.zone?.id ?? null);
+                                      setNewZoneName('');
+                                    }}
+                                    className="p-2 text-purple-400 hover:bg-purple-500/20 rounded-lg transition-all duration-200"
+                                    aria-label="Modifier la zone de l'appareil"
+                                  >
+                                    <Signpost className="w-4 h-4" />
+                                  </motion.button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                      </div>
+                    )})}
+                  </div>
+                )}
+              </div>
+
+              {/* Modal modifier la zone de l'appareil */}
+              {editingZoneApareilId !== null && (() => {
+                const appareil = apareils.find((a) => a.id === editingZoneApareilId);
+                if (!appareil) return null;
+                return (
+                  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 max-w-md w-full">
+                      <h3 className="text-2xl font-bold text-white mb-2">
+                        Modifier la zone
+                      </h3>
+                      <p className="text-white/80 text-sm mb-6">
+                        Appareil : <strong>{appareil.nom}</strong>
+                      </p>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-white/90 text-sm font-medium mb-2">
+                            Zone attribuée
+                          </label>
+                          <select
+                            value={editingZoneId ?? ''}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setEditingZoneId(value === '' ? null : Number(value));
+                            }}
+                            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400"
+                            aria-label="Sélectionner une zone"
+                          >
+                            <option value="" className="bg-slate-900">
+                              Pas de zone attribuée
+                            </option>
+                            {zones.map((zone) => (
+                              <option key={zone.id} value={zone.id} className="bg-slate-900">
+                                {zone.nom}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-white/90 text-sm font-medium mb-2">
+                            Ou créer une nouvelle zone
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={newZoneName}
+                              onChange={(e) => setNewZoneName(e.target.value)}
+                              className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                              placeholder="Nom de la nouvelle zone"
+                              aria-label="Nom de la nouvelle zone"
+                            />
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const name = newZoneName.trim();
+                                if (!name) {
+                                  toast.error('Le nom de la nouvelle zone est requis');
+                                  return;
+                                }
+                                try {
+                                  const res = await fetch('/api/zones', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ nom: name }),
+                                  });
+                                  if (res.ok) {
+                                    const created = await res.json();
+                                    setZones((prev) => [...prev, created]);
+                                    setEditingZoneId(created.id);
+                                    setNewZoneName('');
+                                    toast.success('Zone créée avec succès');
+                                  } else {
+                                    const data = await res.json();
+                                    toast.error('Erreur lors de la création de la zone', {
+                                      description: data.error || 'Impossible de créer la zone',
+                                    });
+                                  }
+                                } catch (error) {
+                                  console.error('Erreur création zone:', error);
+                                  toast.error('Erreur de connexion', {
+                                    description: 'Impossible de contacter le serveur',
+                                  });
+                                }
+                              }}
+                              className="px-4 py-3 rounded-xl bg-purple-500/80 text-white hover:bg-purple-500 transition-colors flex items-center gap-2"
+                              aria-label="Créer la zone"
+                            >
+                              <Plus className="w-4 h-4" />
+                              Créer
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex gap-4 pt-4">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingZoneApareilId(null);
+                              setEditingZoneId(null);
+                              setNewZoneName('');
+                            }}
+                            className="flex-1 py-3 bg-white/10 border border-white/20 text-white rounded-xl hover:bg-white/20 transition-all duration-200"
+                          >
+                            Annuler
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`/api/apareils/${editingZoneApareilId}`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ zoneId: editingZoneId }),
+                                });
+                                if (res.ok) {
+                                  toast.success('Zone mise à jour pour cet appareil');
+                                  setEditingZoneApareilId(null);
+                                  setEditingZoneId(null);
+                                  setNewZoneName('');
+                                  fetchApareils();
+                                } else {
+                                  const data = await res.json();
+                                  toast.error('Erreur lors de la mise à jour de la zone', {
+                                    description: data.error || 'Impossible de mettre à jour la zone',
+                                  });
+                                }
+                              } catch (error) {
+                                console.error('Erreur mise à jour zone appareil:', error);
+                                toast.error('Erreur de connexion', {
+                                  description: 'Impossible de contacter le serveur',
+                                });
+                              }
+                            }}
+                            className="flex-1 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-200"
+                          >
+                            Enregistrer
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
           {/* Liste des utilisateurs */}
           {activeTab === 'users' && (
             <div className="space-y-6 h-full flex flex-col">
@@ -943,7 +1682,7 @@ export default function AdminPage() {
                 <h2 className="text-2xl font-bold text-white">Liste des visiteurs</h2>
                 
                 {/* Légende des couleurs */}
-                <div className="flex items-center gap-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-3">
+                    <div className="flex items-center gap-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-3">
                   <span className="text-white/70 text-sm font-medium">Légende :</span>
                   <div className="flex items-center gap-1">
                     <div className="w-3 h-3 rounded bg-green-500"></div>
@@ -1016,7 +1755,7 @@ export default function AdminPage() {
                               onClick={() => handleEditUser(user)}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition-all duration-200"
+                              className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
                               title="Modifier les heures"
                             >
                               <Edit className="w-4 h-4" />
@@ -1025,7 +1764,7 @@ export default function AdminPage() {
                               onClick={() => setSelectedUser(selectedUser?.id === user.id ? null : user)}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
-                              className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+                              className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition-all duration-200"
                               title="Voir les détails"
                             >
                               {selectedUser?.id === user.id ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

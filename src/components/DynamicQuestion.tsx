@@ -41,6 +41,20 @@ export default function DynamicQuestion({ question, value, onChange }: DynamicQu
 
   const baseInputClasses = "w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-sm";
 
+  // Options peuvent être stockées en JSON (tableau ou chaîne) ou en chaîne comma-separated
+  const getOptionsArray = (): string[] => {
+    if (!question.options) return [];
+    try {
+      const parsed = JSON.parse(question.options);
+      if (Array.isArray(parsed)) return parsed.filter((o): o is string => typeof o === 'string');
+      if (typeof parsed === 'string') return parsed.split(',').map((s) => s.trim()).filter(Boolean);
+    } catch {
+      // Stockage en "opt1,opt2,opt3" sans JSON
+      return String(question.options).split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
   const renderQuestion = () => {
     switch (question.type) {
       case 'TEXT':
@@ -121,7 +135,7 @@ export default function DynamicQuestion({ question, value, onChange }: DynamicQu
         );
 
       case 'SELECT':
-        const selectOptions = question.options ? JSON.parse(question.options) : [];
+        const selectOptions = getOptionsArray();
         return (
           <select
             value={value}
@@ -140,7 +154,7 @@ export default function DynamicQuestion({ question, value, onChange }: DynamicQu
         );
 
       case 'RADIO':
-        const radioOptions = question.options ? JSON.parse(question.options) : [];
+        const radioOptions = getOptionsArray();
         return (
           <div className="space-y-2" role="radiogroup" aria-label={question.titre}>
             {radioOptions.map((option: string, index: number) => (
@@ -161,9 +175,11 @@ export default function DynamicQuestion({ question, value, onChange }: DynamicQu
         );
 
       case 'CHECKBOX':
-        const checkboxOptions = question.options ? JSON.parse(question.options) : [];
-        const selectedValues = value ? value.split(',') : [];
-        return (
+        const checkboxOptions = getOptionsArray();
+        const selectedValues = value ? value.split(',').map((s) => s.trim()) : [];
+
+        // Si des options sont définies, on affiche une case par option
+        return checkboxOptions.length > 0 ? (
           <div className="space-y-2" role="group" aria-label={question.titre}>
             {checkboxOptions.map((option: string, index: number) => (
               <label key={index} className="flex items-center gap-2 text-white/90 text-sm cursor-pointer">
@@ -178,6 +194,24 @@ export default function DynamicQuestion({ question, value, onChange }: DynamicQu
               </label>
             ))}
           </div>
+        ) : (
+          // Sinon, on rend un toggle custom (comme dans le formulaire admin)
+          <button
+            type="button"
+            onClick={() => onChange(question.id, value === 'true' ? '' : 'true')}
+            aria-pressed={value === 'true'}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none ${
+              value === 'true'
+                ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                : 'bg-white/20'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                value === 'true' ? 'translate-x-[16px]' : 'translate-x-1'
+              }`}
+            />
+          </button>
         );
 
       default:
@@ -194,6 +228,23 @@ export default function DynamicQuestion({ question, value, onChange }: DynamicQu
         );
     }
   };
+
+  const checkboxOptions = question.type === 'CHECKBOX' ? getOptionsArray() : [];
+  const isBooleanCheckbox = question.type === 'CHECKBOX' && checkboxOptions.length === 0;
+
+  if (isBooleanCheckbox) {
+    // Rendu spécifique : nom de la question + ligne pointillée + toggle booléen à droite
+    return (
+      <div className="flex items-center text-white/90 text-xs font-medium cursor-pointer">
+        <span>
+          {question.titre}
+          {question.required && <span className="text-red-400 ml-1">*</span>}
+        </span>
+        <span className="flex-1 mx-2 border-t border-dashed border-white/25" />
+        {renderQuestion()}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-1">

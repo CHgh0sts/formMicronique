@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import DeviceInitializer from "@/components/DeviceInitializer";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -50,6 +51,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="FormMicro2" />
       </head>
       <body className={`${inter.className} antialiased`}>
+        <DeviceInitializer />
         {children}
         <Toaster 
           position="bottom-right"
