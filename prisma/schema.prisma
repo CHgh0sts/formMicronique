@@ -28,6 +28,12 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  // Appareil et zone utilisés pour l'enregistrement
+  apareilId    Int?
+  apareil      Apareil?  @relation(name: "UserApareil", fields: [apareilId], references: [id])
+  zoneId       Int?
+  zone         Zone?     @relation(name: "UserZone", fields: [zoneId], references: [id])
+
   @@map("users")
 }
 
@@ -57,6 +63,7 @@ model Zone {
   // Une zone peut avoir plusieurs appareils et plusieurs questions
   appareils Apareil[]
   questions Question[]
+  users     User[]     @relation("UserZone")
 
   @@map("zones")
 }
@@ -68,6 +75,9 @@ model Apareil {
   // Appareil relié à une zone (obligatoire)
   zoneId Int
   zone   Zone @relation(fields: [zoneId], references: [id])
+
+  // Utilisateurs qui se sont enregistrés via cet appareil
+  users  User[] @relation("UserApareil")
 
   @@map("apareils")
 }

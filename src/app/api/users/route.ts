@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
 
 // Fonction pour vérifier et mettre à jour les départs automatiques
@@ -113,7 +114,15 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       orderBy: {
         heureArrivee: 'desc'
-      }
+      },
+      include: {
+        apareil: {
+          include: {
+            zone: true,
+          },
+        },
+        zone: true,
+      },
     })
 
     return NextResponse.json(users)
@@ -140,6 +149,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Identifier l'appareil et la zone à partir du cookie device_id
+    let apareilId: number | null = null
+    let zoneId: number | null = null
+
+    try {
+      const cookieStore = await cookies()
+      const deviceCookie = await cookieStore.get('device_id')
+
+      if (deviceCookie?.value) {
+        const appareil = await prisma.apareil.findUnique({
+          where: { id: Number(deviceCookie.value) },
+        })
+        if (appareil) {
+          apareilId = appareil.id
+          zoneId = appareil.zoneId
+        }
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du device pour le visiteur:', error)
+      // On continue malgré tout, l'enregistrement reste valide sans appareil/zone
+    }
+
     const user = await prisma.user.create({
       data: {
         nom,
@@ -149,7 +180,9 @@ export async function POST(request: NextRequest) {
         heureArrivee: new Date(),
         estPresent: true,
         arriveType: 'VERIFY',
-        departType: 'VERIFY'
+        departType: 'VERIFY',
+        apareilId: apareilId ?? undefined,
+        zoneId: zoneId ?? undefined,
       }
     })
 

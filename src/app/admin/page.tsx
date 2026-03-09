@@ -53,6 +53,18 @@ interface User {
   estPresent: boolean;
   arriveType: EntryType;
   departType: EntryType;
+  apareil?: {
+    id: number;
+    nom: string;
+    zone?: {
+      id: number;
+      nom: string;
+    } | null;
+  } | null;
+  zone?: {
+    id: number;
+    nom: string;
+  } | null;
 }
 
 interface QuestionForm {
@@ -1747,6 +1759,26 @@ export default function AdminPage() {
                                 ) : (
                                   <span className="text-white/50 font-medium">En cours</span>
                                 )}
+                              </div>
+                            </div>
+                            <div className="mt-2 flex flex-wrap items-center gap-3 text-white/60 text-xs">
+                              <div className="flex items-center gap-1">
+                                <Smartphone className="w-3 h-3 text-emerald-300" />
+                                <span className="font-medium">Appareil :</span>
+                                <span>
+                                  {user.apareil
+                                    ? `${user.apareil.nom} (ID #${user.apareil.id})`
+                                    : 'Inconnu'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Signpost className="w-3 h-3 text-indigo-300" />
+                                <span className="font-medium">Zone :</span>
+                                <span>
+                                  {user.zone?.nom ??
+                                    user.apareil?.zone?.nom ??
+                                    'Pas de zone attribuée'}
+                                </span>
                               </div>
                             </div>
                           </div>

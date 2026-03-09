@@ -199,7 +199,7 @@ export default function DynamicQuestion({ question, value, onChange }: DynamicQu
           <button
             type="button"
             onClick={() => onChange(question.id, value === 'true' ? '' : 'true')}
-            aria-pressed={value === 'true'}
+            aria-label={question.titre}
             className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors duration-200 focus:outline-none ${
               value === 'true'
                 ? 'bg-gradient-to-r from-green-500 to-emerald-600'
