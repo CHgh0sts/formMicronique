@@ -1,0 +1,24 @@
+{
+  "name": "FormMicro2 - Registre des Visiteurs",
+  "short_name": "FormMicro2",
+  "description": "Registre des visiteurs avec gestion des arrivées et départs, optimisé pour une utilisation en PWA.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#000000",
+  "lang": "fr-FR",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

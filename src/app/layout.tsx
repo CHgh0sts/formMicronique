@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import DeviceInitializer from "@/components/DeviceInitializer";
+import PwaInitializer from "@/components/PwaInitializer";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -13,12 +14,18 @@ export const metadata: Metadata = {
   authors: [{ name: "FormMicro2" }],
   creator: "FormMicro2",
   publisher: "FormMicro2",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "FormMicro2",
+  },
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://formmicro2.example.com'),
+  metadataBase: new URL("https://formmicro2.example.com"),
   openGraph: {
     title: "FormMicro2 - Registre des Visiteurs",
     description: "Système moderne de gestion des visiteurs",
@@ -32,10 +39,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#000000',
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -45,15 +52,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <head>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="FormMicro2" />
-      </head>
       <body className={`${inter.className} antialiased`}>
+        <PwaInitializer />
         <DeviceInitializer />
         {children}
-        <Toaster 
+        <Toaster
           position="bottom-right"
           richColors
           closeButton
@@ -64,3 +67,4 @@ export default function RootLayout({
     </html>
   );
 }
+
