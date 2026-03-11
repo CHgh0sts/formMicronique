@@ -15,7 +15,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden">
       {/* Background avec overlay moderne */}
       <div className="absolute inset-0">
         <Image 
@@ -46,7 +46,7 @@ export default function Home() {
       </div>
 
       {/* Contenu principal */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[100dvh] px-4">
         
         {/* Titre principal */}
         <div className="text-center mb-12">

@@ -175,7 +175,7 @@ export default function AdminPage() {
   // Si pas authentifié, afficher la page de connexion
   if (!isAuthenticated) {
     return (
-      <div className="relative min-h-screen overflow-hidden">
+      <div className="relative min-h-[100dvh] overflow-hidden">
         {/* Background avec overlay */}
         <div className="absolute inset-0">
           <Image 
@@ -206,7 +206,7 @@ export default function AdminPage() {
         </div>
 
         {/* Contenu de connexion */}
-        <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)] px-4">
+        <div className="relative z-10 flex items-center justify-center min-h-[calc(100dvh-120px)] px-4">
           <div className="w-full max-w-md">
             <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
               
@@ -706,7 +706,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-[100dvh] overflow-hidden">
       {/* Background avec overlay */}
       <div className="absolute inset-0">
         <Image 
