@@ -1,6 +1,6 @@
 {
   "name": "FormMicro2 - Registre des Visiteurs",
-  "short_name": "FormMicro2",
+  "short_name": "RegistreVisiteurs",
   "description": "Registre des visiteurs avec gestion des arrivées et départs, optimisé pour une utilisation en PWA.",
   "start_url": "/",
   "display": "standalone",
@@ -21,4 +21,3 @@
     }
   ]
 }
-
