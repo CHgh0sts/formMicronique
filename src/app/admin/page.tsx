@@ -1433,10 +1433,17 @@ export default function AdminPage() {
                                           body: JSON.stringify({ nom: newName }),
                                         });
                                         if (res.ok) {
+                                          const updated = await res.json();
                                           toast.success('Appareil renommé avec succès');
+                                          setApareils((prev) =>
+                                            prev.map((a) =>
+                                              a.id === updated.id ? { ...a, ...updated } : a
+                                            )
+                                          );
+                                          // Sécurité : on recharge depuis l'API pour être 100% synchro
+                                          fetchApareils();
                                           setEditingApareilId(null);
                                           setEditingApareilNom('');
-                                          fetchApareils();
                                         } else {
                                           const data = await res.json();
                                           toast.error('Erreur lors du renommage', {
@@ -1500,6 +1507,10 @@ export default function AdminPage() {
                                         });
                                         if (res.ok) {
                                           toast.success('Appareil supprimé avec succès');
+                                          setApareils((prev) =>
+                                            prev.filter((a) => a.id !== apareil.id)
+                                          );
+                                          // Sécurité : on recharge la liste depuis l'API
                                           fetchApareils();
                                         } else {
                                           const data = await res.json();
@@ -1657,10 +1668,24 @@ export default function AdminPage() {
                                 });
                                 if (res.ok) {
                                   toast.success('Zone mise à jour pour cet appareil');
+                                  setApareils((prev) =>
+                                    prev.map((a) =>
+                                      a.id === editingZoneApareilId
+                                        ? {
+                                            ...a,
+                                            zone:
+                                              editingZoneId === null
+                                                ? null
+                                                : zones.find((z) => z.id === editingZoneId) || a.zone,
+                                          }
+                                        : a
+                                    )
+                                  );
+                                  // Recharge complète pour rester cohérent avec le serveur
+                                  fetchApareils();
                                   setEditingZoneApareilId(null);
                                   setEditingZoneId(null);
                                   setNewZoneName('');
-                                  fetchApareils();
                                 } else {
                                   const data = await res.json();
                                   toast.error('Erreur lors de la mise à jour de la zone', {

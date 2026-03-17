@@ -1,4 +1,4 @@
-const CACHE_NAME = "formmicro2-pwa-v1";
+const CACHE_NAME = "formmicro2-pwa-v2";
 
 const OFFLINE_URLS = [
   "/",
@@ -41,31 +41,57 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  const url = new URL(request.url);
+
+  // 1. Ne JAMAIS intercepter les appels API ou les requêtes Next internes
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/_next/") ||
+    url.pathname.startsWith("/favicon") ||
+    url.pathname.startsWith("/manifest")
+  ) {
+    return; // comportement réseau normal, pas de cache SW
+  }
+
+  // 2. Pour les pages HTML (navigations), on fait réseau -> fallback cache
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          return networkResponse;
+        })
+        .catch(() => caches.match(request).then((res) => res || caches.match("/")))
+    );
+    return;
+  }
+
+  // 3. Pour le reste (images, css, etc.), cache-first avec mise à jour
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) {
+        // On renvoie le cache, mais on met à jour en arrière-plan
+        fetch(request)
+          .then((networkResponse) => {
+            if (networkResponse.ok) {
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, networkResponse).catch(() => {});
+              });
+            }
+          })
+          .catch(() => {});
         return cachedResponse;
       }
 
       return fetch(request)
         .then((networkResponse) => {
-          const responseClone = networkResponse.clone();
-
-          // On ne met en cache que les réponses valides
           if (networkResponse.ok) {
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone).catch(() => {
-                // Ne rien faire si le put échoue
-              });
+              cache.put(request, networkResponse.clone()).catch(() => {});
             });
           }
-
           return networkResponse;
         })
-        .catch(() => {
-          // En cas d'erreur réseau, on renvoie la page d'accueil si possible
-          return caches.match("/").then((fallback) => fallback || Response.error());
-        });
+        .catch(() => caches.match("/").then((fallback) => fallback || Response.error()));
     })
   );
 });
