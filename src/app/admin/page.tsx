@@ -771,7 +771,7 @@ export default function AdminPage() {
                   }`}
                 >
                   <tab.icon className="w-4 h-4 md:w-4 md:h-4 shrink-0" />
-                  <span className="font-medium hidden md:inline">{tab.label}</span>
+                  <span className="font-medium hidden lg:inline">{tab.label}</span>
                 </button>
               ))}
             </div>
