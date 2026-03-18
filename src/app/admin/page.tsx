@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Users, Download, Settings, BarChart3, Clock, Shield, Plus, Edit, Trash2, Eye, EyeOff, Lock, Key, Smartphone, Signpost, Check, X } from 'lucide-react';
+import { ArrowLeft, Users, Download, Settings, BarChart3, Clock, Shield, Plus, Edit, Trash2, Eye, EyeOff, Lock, Key, Smartphone, Signpost, Check, X, CircleHelp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
@@ -755,7 +755,7 @@ export default function AdminPage() {
             <div className="flex gap-1 md:gap-2">
               {[
                 { id: 'dashboard', label: 'Tableau de bord', icon: BarChart3 },
-                { id: 'questions', label: 'Questions', icon: Settings },
+                { id: 'questions', label: 'Questions', icon: CircleHelp },
                 { id: 'users', label: 'Visiteurs', icon: Users },
                 { id: 'zones', label: 'Zones', icon: Signpost },
                 { id: 'apareils', label: 'Appareils', icon: Smartphone }
