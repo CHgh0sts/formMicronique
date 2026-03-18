@@ -238,6 +238,7 @@ export default function DepartPage() {
         const result = await response.json();
         const user = presentUsers.find(u => u.id === userId);
         
+        try { new Audio('/audio/correct.mp3').play(); } catch {}
         toast.success('Départ enregistré avec succès !', {
           description: `Au revoir ${user?.prenom} ${user?.nom}`,
           duration: 3000,

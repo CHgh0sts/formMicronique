@@ -102,6 +102,7 @@ export default function AdminPage() {
   const [editingZoneIdForTab, setEditingZoneIdForTab] = useState<number | null>(null);
   const [editingZoneNomForTab, setEditingZoneNomForTab] = useState('');
   const [editingZoneApareilId, setEditingZoneApareilId] = useState<number | null>(null);
+  const [openMenuUserId, setOpenMenuUserId] = useState<string | null>(null);
   const [editingZoneId, setEditingZoneId] = useState<number | null>(null);
   const [newZoneName, setNewZoneName] = useState('');
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -721,18 +722,18 @@ export default function AdminPage() {
       </div>
 
       {/* Header avec bouton retour */}
-      <div className="relative z-10 flex items-center justify-between p-6">
+      <div className="relative z-10 flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
         <Link 
           href="/" 
-          className="group flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105"
+          className="group flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white hover:bg-white/20 transition-all duration-300 hover:scale-105 text-xs md:text-sm"
         >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-sm font-medium">Retour</span>
+          <ArrowLeft className="w-3 h-3 md:w-4 md:h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-medium">Retour</span>
         </Link>
         
-        <div className="flex items-center gap-2 text-white/80">
-          <Shield className="w-4 h-4" />
-          <span className="text-sm font-medium">Administration</span>
+        <div className="flex items-center gap-2 text-white/80 text-xs md:text-sm">
+          <Shield className="w-3 h-3 md:w-4 md:h-4" />
+          <span className="font-medium">Administration</span>
         </div>
       </div>
 
@@ -740,8 +741,8 @@ export default function AdminPage() {
       <div className="relative z-10 px-4 pb-8 h-[calc(100vh-120px)] flex flex-col">
         
         {/* Titre */}
-        <div className="text-center mb-8 flex-shrink-0">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+        <div className="text-center mb-4 md:mb-8 flex-shrink-0">
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-2 md:mb-4 tracking-tight">
             <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
               Administration
             </span>
@@ -749,9 +750,9 @@ export default function AdminPage() {
         </div>
 
         {/* Navigation par onglets */}
-        <div className="flex justify-center mb-8 flex-shrink-0">
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-2">
-            <div className="flex gap-2">
+        <div className="flex justify-center mb-4 md:mb-8 flex-shrink-0">
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-2 py-1 w-full">
+            <div className="flex gap-1 md:gap-2">
               {[
                 { id: 'dashboard', label: 'Tableau de bord', icon: BarChart3 },
                 { id: 'questions', label: 'Questions', icon: Settings },
@@ -762,14 +763,15 @@ export default function AdminPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
+                  title={tab.label}
+                  className={`flex-1 flex items-center justify-center gap-1.5 md:gap-2 px-1.5 py-1.5 md:px-4 md:py-2 rounded-xl transition-all duration-200 text-xs md:text-sm ${
                     activeTab === tab.id
                       ? 'bg-white/20 text-white'
                       : 'text-white/70 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{tab.label}</span>
+                  <tab.icon className="w-4 h-4 md:w-4 md:h-4 shrink-0" />
+                  <span className="font-medium hidden md:inline">{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -781,45 +783,45 @@ export default function AdminPage() {
           
           {/* Dashboard */}
           {activeTab === 'dashboard' && (
-            <div className="space-y-8">
+            <div className="space-y-4 md:space-y-8">
               {/* Statistiques */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-3 gap-2 md:gap-6">
                 {[
                   { label: 'Visiteurs aujourd\'hui', value: stats.visitorsToday, icon: Users, color: 'from-blue-500 to-blue-600' },
                   { label: 'Présents actuellement', value: stats.currentlyPresent, icon: Clock, color: 'from-green-500 to-green-600' },
                   { label: 'Total ce mois', value: stats.totalThisMonth, icon: BarChart3, color: 'from-purple-500 to-purple-600' },
-                ].map((stat, index) => (
+                ].map((stat) => (
                   <div
                     key={stat.label}
-                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-xl"
+                    className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 md:p-6 shadow-xl"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.color}`}>
-                        <stat.icon className="w-6 h-6 text-white" />
+                    <div className="flex items-center justify-between mb-2 md:mb-4">
+                      <div className={`p-1.5 md:p-3 rounded-xl bg-gradient-to-r ${stat.color}`}>
+                        <stat.icon className="w-4 h-4 md:w-6 md:h-6 text-white" />
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-white">{stat.value}</div>
+                        <div className="text-xl md:text-2xl font-bold text-white">{stat.value}</div>
                       </div>
                     </div>
-                    <p className="text-white/70 text-sm">{stat.label}</p>
+                    <p className="text-white/70 text-[10px] md:text-sm leading-tight">{stat.label}</p>
                   </div>
                 ))}
               </div>
 
               {/* Actions rapides */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                 <motion.button
                   onClick={() => setActiveTab('questions')}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="group flex items-center gap-4 p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white hover:bg-white/20 transition-all duration-200"
+                  className="group flex items-center gap-3 md:gap-4 p-3 md:p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white hover:bg-white/20 transition-all duration-200"
                 >
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600">
-                    <Settings className="w-6 h-6 text-white" />
+                  <div className="p-2 md:p-3 rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 shrink-0">
+                    <Settings className="w-4 h-4 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-semibold mb-1">Gérer les questions</h3>
-                    <p className="text-white/70 text-sm">Créer, modifier, supprimer</p>
+                    <h3 className="font-semibold text-sm md:text-base mb-0.5 md:mb-1">Gérer les questions</h3>
+                    <p className="text-white/70 text-xs md:text-sm">Créer, modifier, supprimer</p>
                   </div>
                 </motion.button>
 
@@ -827,14 +829,14 @@ export default function AdminPage() {
                   onClick={() => setActiveTab('users')}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="group flex items-center gap-4 p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white hover:bg-white/20 transition-all duration-200"
+                  className="group flex items-center gap-3 md:gap-4 p-3 md:p-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white hover:bg-white/20 transition-all duration-200"
                 >
-                  <div className="p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600">
-                    <Users className="w-6 h-6 text-white" />
+                  <div className="p-2 md:p-3 rounded-xl bg-gradient-to-r from-green-500 to-green-600 shrink-0">
+                    <Users className="w-4 h-4 md:w-6 md:h-6 text-white" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-semibold mb-1">Voir les visiteurs</h3>
-                    <p className="text-white/70 text-sm">Liste et détails</p>
+                    <h3 className="font-semibold text-sm md:text-base mb-0.5 md:mb-1">Voir les visiteurs</h3>
+                    <p className="text-white/70 text-xs md:text-sm">Liste et détails</p>
                   </div>
                 </motion.button>
               </div>
@@ -844,18 +846,18 @@ export default function AdminPage() {
           {/* Gestion des questions avec drag and drop */}
           {activeTab === 'questions' && (
             <div className="space-y-6 h-full flex flex-col">
-              <div className="flex justify-between items-center flex-shrink-0">
+              <div className="flex justify-between items-start gap-3 flex-shrink-0">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Gestion des questions</h2>
-                  <p className="text-white/60 text-sm mt-1">Glissez-déposez pour réorganiser l'ordre</p>
+                  <h2 className="text-lg md:text-2xl font-bold text-white">Gestion des questions</h2>
+                  <p className="text-white/60 text-xs md:text-sm mt-0.5">Glissez-déposez pour réorganiser l'ordre</p>
                 </div>
                 <motion.button
                   onClick={() => setShowQuestionForm(true)}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200"
+                  className="shrink-0 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 text-xs md:text-sm"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   Nouvelle question
                 </motion.button>
               </div>
@@ -1071,10 +1073,10 @@ export default function AdminPage() {
           {/* Gestion des zones */}
           {activeTab === 'zones' && (
             <div className="space-y-6 h-full flex flex-col">
-              <div className="flex justify-between items-center flex-shrink-0">
+              <div className="flex justify-between items-start gap-3 flex-shrink-0">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Zones</h2>
-                  <p className="text-white/60 text-sm mt-1">
+                  <h2 className="text-lg md:text-2xl font-bold text-white">Zones</h2>
+                  <p className="text-white/60 text-xs md:text-sm mt-0.5">
                     Gestion des zones physiques (étages, bâtiments, secteurs, etc.)
                   </p>
                 </div>
@@ -1087,9 +1089,9 @@ export default function AdminPage() {
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200"
+                    className="shrink-0 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 text-xs md:text-sm"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     Nouvelle zone
                   </motion.button>
                 </div>
@@ -1335,16 +1337,16 @@ export default function AdminPage() {
           {/* Gestion des appareils */}
           {activeTab === 'apareils' && (
             <div className="space-y-6 h-full flex flex-col">
-              <div className="flex justify-between items-center flex-shrink-0">
+              <div className="flex justify-between items-start gap-3 flex-shrink-0">
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Appareils</h2>
-                  <p className="text-white/60 text-sm mt-1">
+                  <h2 className="text-lg md:text-2xl font-bold text-white">Appareils</h2>
+                  <p className="text-white/60 text-xs md:text-sm mt-0.5">
                     Liste des appareils reliés aux zones (tablettes, bornes, etc.)
                   </p>
                 </div>
                 {currentDeviceId && (
-                  <div className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-medium flex items-center gap-2">
-                    <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <div className="shrink-0 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-[10px] md:text-xs font-medium flex items-center gap-1.5">
+                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Cet appareil est identifié
                   </div>
                 )}
@@ -1359,197 +1361,179 @@ export default function AdminPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="h-full max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  <div className="h-full max-h-[60vh] overflow-y-auto pr-1 space-y-3 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                     {apareils.map((apareil) => {
                       const isCurrent = currentDeviceId === apareil.id;
                       const isEditing = editingApareilId === apareil.id;
                       return (
-                        <div key={apareil.id} className="space-y-2">
-                          <div
-                            className={`bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-6 py-3 flex items-center justify-between transition-all duration-200 hover:bg-white/15 ${
-                              isCurrent ? 'border-emerald-400 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]' : ''
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="p-2 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700">
-                                <Smartphone className="w-5 h-5 text-white" />
+                        <div
+                          key={apareil.id}
+                          className={`bg-white/10 backdrop-blur-xl border rounded-2xl px-3 py-2 md:px-4 md:py-2 flex items-center justify-between transition-all duration-200 hover:bg-white/15 ${
+                            isCurrent
+                              ? 'border-emerald-400 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]'
+                              : 'border-white/20'
+                          }`}
+                        >
+                          {/* Icône + infos */}
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <div className="shrink-0 p-1.5 rounded-xl bg-gradient-to-r from-slate-600 to-slate-700">
+                              <Smartphone className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="min-w-0">
+                              {/* Nom + badge "cet appareil" */}
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {isEditing ? (
+                                  <input
+                                    type="text"
+                                    value={editingApareilNom}
+                                    onChange={(e) => setEditingApareilNom(e.target.value)}
+                                    className="px-2 py-0.5 rounded-md bg-white/10 border border-white/20 text-white text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                                    aria-label="Nom de l'appareil"
+                                    placeholder="Nom de l'appareil"
+                                  />
+                                ) : (
+                                  <p className="text-white font-medium text-sm truncate">{apareil.nom}</p>
+                                )}
+                                {isCurrent && (
+                                  <span className="shrink-0 px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-semibold uppercase tracking-wide">
+                                    Cet appareil
+                                  </span>
+                                )}
                               </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  {isEditing ? (
-                                    <input
-                                      type="text"
-                                      value={editingApareilNom}
-                                      onChange={(e) => setEditingApareilNom(e.target.value)}
-                                      className="px-2 py-1 rounded-md bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                                      aria-label="Nom de l'appareil"
-                                      placeholder="Nom de l'appareil"
-                                    />
-                                  ) : (
-                                    <p className="text-white font-medium text-sm">
-                                      {apareil.nom}
-                                    </p>
-                                  )}
-                                  {isCurrent && (
-                                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 text-[11px] font-semibold uppercase tracking-wide">
-                                      Cet appareil
-                                    </span>
-                                  )}
-                                </div>
-                                <p
-                                  className={`text-xs ${
-                                    !apareil.zone || apareil.zone.nom === 'Zone par défaut'
-                                      ? 'text-red-300'
-                                      : 'text-white/60'
-                                  }`}
-                                >
-                                  Zone :{' '}
+                              {/* Zone + ID */}
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className={`text-[10px] md:text-xs ${
+                                  !apareil.zone || apareil.zone.nom === 'Zone par défaut'
+                                    ? 'text-red-300'
+                                    : 'text-white/60'
+                                }`}>
                                   {!apareil.zone || apareil.zone.nom === 'Zone par défaut'
                                     ? 'Pas de zone attribuée'
                                     : apareil.zone.nom}
-                                </p>
-                                <p className="text-white/40 text-[11px] mt-0.5">
-                                  ID #{apareil.id}
-                                </p>
+                                </span>
+                                <span className="text-white/30 text-[10px]">·</span>
+                                <span className="text-white/35 text-[10px]">ID #{apareil.id}</span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              {isEditing ? (
-                                <>
-                                  <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={async () => {
-                                      const newName = editingApareilNom.trim();
-                                      if (!newName) {
-                                        toast.error('Le nom de l\'appareil ne peut pas être vide');
-                                        return;
-                                      }
-                                      try {
-                                        const res = await fetch(`/api/apareils/${apareil.id}`, {
-                                          method: 'PUT',
-                                          headers: { 'Content-Type': 'application/json' },
-                                          body: JSON.stringify({ nom: newName }),
-                                        });
-                                        if (res.ok) {
-                                          const updated = await res.json();
-                                          toast.success('Appareil renommé avec succès');
-                                          setApareils((prev) =>
-                                            prev.map((a) =>
-                                              a.id === updated.id ? { ...a, ...updated } : a
-                                            )
-                                          );
-                                          // Sécurité : on recharge depuis l'API pour être 100% synchro
-                                          fetchApareils();
-                                          setEditingApareilId(null);
-                                          setEditingApareilNom('');
-                                        } else {
-                                          const data = await res.json();
-                                          toast.error('Erreur lors du renommage', {
-                                            description: data.error || 'Impossible de renommer l\'appareil',
-                                          });
-                                        }
-                                      } catch (error) {
-                                        console.error('Erreur renommage appareil:', error);
-                                        toast.error('Erreur de connexion', {
-                                          description: 'Impossible de contacter le serveur',
-                                        });
-                                      }
-                                    }}
-                                    className="p-2 text-emerald-400 hover:bg-emerald-500/20 rounded-lg transition-all duration-200"
-                                    aria-label="Sauvegarder le nouveau nom de l'appareil"
-                                  >
-                                    <Check className="w-4 h-4" />
-                                  </motion.button>
-                                  <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => {
-                                      setEditingApareilId(null);
-                                      setEditingApareilNom('');
-                                    }}
-                                    className="p-2 text-white/70 hover:bg-white/15 rounded-lg transition-all duration-200"
-                                    aria-label="Annuler le renommage de l'appareil"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </motion.button>
-                                </>
-                              ) : (
-                                <>
-                                  <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => {
-                                      setEditingApareilId(apareil.id);
-                                      setEditingApareilNom(apareil.nom);
-                                    }}
-                                    className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
-                                    aria-label="Renommer l'appareil"
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </motion.button>
-                                  <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={async () => {
-                                      const confirmDelete = window.confirm(
-                                        `Voulez-vous vraiment supprimer l'appareil "${apareil.nom}" ?`
-                                      );
-                                      if (!confirmDelete) return;
-
-                                      try {
-                                        const res = await fetch(`/api/apareils/${apareil.id}`, {
-                                          method: 'DELETE',
-                                        });
-                                        if (res.ok) {
-                                          toast.success('Appareil supprimé avec succès');
-                                          setApareils((prev) =>
-                                            prev.filter((a) => a.id !== apareil.id)
-                                          );
-                                          // Sécurité : on recharge la liste depuis l'API
-                                          fetchApareils();
-                                        } else {
-                                          const data = await res.json();
-                                          toast.error('Erreur lors de la suppression', {
-                                            description: data.error || 'Impossible de supprimer l\'appareil',
-                                          });
-                                        }
-                                      } catch (error) {
-                                        console.error('Erreur suppression appareil:', error);
-                                        toast.error('Erreur de connexion', {
-                                          description: 'Impossible de contacter le serveur',
-                                        });
-                                      }
-                                    }}
-                                    className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-200"
-                                    aria-label="Supprimer l'appareil"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </motion.button>
-                                  <motion.button
-                                    type="button"
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
-                                    onClick={() => {
-                                      setEditingZoneApareilId(apareil.id);
-                                      setEditingZoneId(apareil.zone?.id ?? null);
-                                      setNewZoneName('');
-                                    }}
-                                    className="p-2 text-purple-400 hover:bg-purple-500/20 rounded-lg transition-all duration-200"
-                                    aria-label="Modifier la zone de l'appareil"
-                                  >
-                                    <Signpost className="w-4 h-4" />
-                                  </motion.button>
-                                </>
-                              )}
-                            </div>
                           </div>
-                      </div>
-                    )})}
+
+                          {/* Boutons d'action */}
+                          <div className="flex items-center gap-1 shrink-0 ml-2">
+                            {isEditing ? (
+                              <>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={async () => {
+                                    const newName = editingApareilNom.trim();
+                                    if (!newName) {
+                                      toast.error('Le nom de l\'appareil ne peut pas être vide');
+                                      return;
+                                    }
+                                    try {
+                                      const res = await fetch(`/api/apareils/${apareil.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ nom: newName }),
+                                      });
+                                      if (res.ok) {
+                                        const updated = await res.json();
+                                        toast.success('Appareil renommé avec succès');
+                                        setApareils((prev) =>
+                                          prev.map((a) =>
+                                            a.id === updated.id ? { ...a, ...updated } : a
+                                          )
+                                        );
+                                        fetchApareils();
+                                        setEditingApareilId(null);
+                                        setEditingApareilNom('');
+                                      } else {
+                                        const data = await res.json();
+                                        toast.error('Erreur lors du renommage', {
+                                          description: data.error || 'Impossible de renommer l\'appareil',
+                                        });
+                                      }
+                                    } catch (error) {
+                                      console.error('Erreur renommage appareil:', error);
+                                      toast.error('Erreur de connexion', { description: 'Impossible de contacter le serveur' });
+                                    }
+                                  }}
+                                  className="p-1.5 text-emerald-400 hover:bg-emerald-500/20 rounded-lg transition-all duration-200"
+                                  aria-label="Sauvegarder"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                </motion.button>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => { setEditingApareilId(null); setEditingApareilNom(''); }}
+                                  className="p-1.5 text-white/60 hover:bg-white/15 rounded-lg transition-all duration-200"
+                                  aria-label="Annuler"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </motion.button>
+                              </>
+                            ) : (
+                              <>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => { setEditingApareilId(apareil.id); setEditingApareilNom(apareil.nom); }}
+                                  className="p-1.5 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+                                  aria-label="Renommer l'appareil"
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </motion.button>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={async () => {
+                                    const confirmDelete = window.confirm(`Voulez-vous vraiment supprimer l'appareil "${apareil.nom}" ?`);
+                                    if (!confirmDelete) return;
+                                    try {
+                                      const res = await fetch(`/api/apareils/${apareil.id}`, { method: 'DELETE' });
+                                      if (res.ok) {
+                                        toast.success('Appareil supprimé avec succès');
+                                        setApareils((prev) => prev.filter((a) => a.id !== apareil.id));
+                                        fetchApareils();
+                                      } else {
+                                        const data = await res.json();
+                                        toast.error('Erreur lors de la suppression', { description: data.error || 'Impossible de supprimer l\'appareil' });
+                                      }
+                                    } catch (error) {
+                                      console.error('Erreur suppression appareil:', error);
+                                      toast.error('Erreur de connexion', { description: 'Impossible de contacter le serveur' });
+                                    }
+                                  }}
+                                  className="p-1.5 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                                  aria-label="Supprimer l'appareil"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </motion.button>
+                                <motion.button
+                                  type="button"
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => {
+                                    setEditingZoneApareilId(apareil.id);
+                                    setEditingZoneId(apareil.zone?.id ?? null);
+                                    setNewZoneName('');
+                                  }}
+                                  className="p-1.5 text-purple-400 hover:bg-purple-500/20 rounded-lg transition-all duration-200"
+                                  aria-label="Modifier la zone de l'appareil"
+                                >
+                                  <Signpost className="w-3.5 h-3.5" />
+                                </motion.button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1714,127 +1698,138 @@ export default function AdminPage() {
 
           {/* Liste des utilisateurs */}
           {activeTab === 'users' && (
-            <div className="space-y-6 h-full flex flex-col">
-              <div className="flex justify-between items-center flex-shrink-0">
-                <h2 className="text-2xl font-bold text-white">Liste des visiteurs</h2>
+            <div className="space-y-4 md:space-y-6 h-full flex flex-col">
+              <div className="flex flex-wrap justify-between items-center gap-2 flex-shrink-0">
+                <h2 className="text-lg md:text-2xl font-bold text-white">Liste des visiteurs</h2>
                 
                 {/* Légende des couleurs */}
-                    <div className="flex items-center gap-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-3">
-                  <span className="text-white/70 text-sm font-medium">Légende :</span>
+                <div className="flex items-center gap-2 md:gap-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl px-2 py-1.5 md:p-3">
+                  <span className="text-white/70 text-xs md:text-sm font-medium">Légende :</span>
                   <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded bg-green-500"></div>
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded bg-green-500"></div>
                     <span className="text-green-300 text-xs">Vérifié</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded bg-blue-500"></div>
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded bg-blue-500"></div>
                     <span className="text-blue-300 text-xs">Manuel</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded bg-orange-500"></div>
+                    <div className="w-2 h-2 md:w-3 md:h-3 rounded bg-orange-500"></div>
                     <span className="text-orange-300 text-xs">Auto</span>
                   </div>
                 </div>
               </div>
               
               <div className="flex-1 min-h-0">
-                <div className="h-full max-h-[60vh] overflow-y-auto pr-2 space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                <div className="h-full max-h-[60vh] overflow-y-auto pr-1 md:pr-2 space-y-3 md:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                   {users.length === 0 ? (
-                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 text-center">
+                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 md:p-8 text-center">
                       <div className="text-white/60 mb-4">
-                        <Users className="w-12 h-12 mx-auto mb-3" />
-                        <p className="text-lg font-medium">Aucun visiteur enregistré</p>
-                        <p className="text-sm">Les visiteurs apparaîtront ici après leur enregistrement</p>
+                        <Users className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-3" />
+                        <p className="text-base md:text-lg font-medium">Aucun visiteur enregistré</p>
+                        <p className="text-xs md:text-sm">Les visiteurs apparaîtront ici après leur enregistrement</p>
                       </div>
                     </div>
                   ) : (
                     users.map((user) => (
-                      <div key={user.id} className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-4 py-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-white font-medium">{user.nom} {user.prenom}</h3>
-                              <span className={`px-2 py-1 rounded-full text-xs ${
+                      <div
+                        key={user.id}
+                        className={`relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl px-3 py-2 md:px-4 md:py-2 ${
+                          openMenuUserId === user.id ? 'z-20' : 'z-0'
+                        }`}
+                        style={{ isolation: 'isolate' }}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            {/* Nom + société + badge */}
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                              <h3 className="text-white font-medium text-sm md:text-base">{user.nom} {user.prenom}</h3>
+                              {user.societe && (
+                                <span className="text-white/45 text-[10px] md:text-xs font-medium truncate max-w-[120px]">
+                                  · {user.societe}
+                                </span>
+                              )}
+                              <span className={`shrink-0 px-1.5 py-0.5 rounded-full text-[10px] md:text-xs ${
                                 user.estPresent ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-300'
                               }`}>
                                 {user.estPresent ? 'Présent' : 'Parti'}
                               </span>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-white/70 text-sm">
-                              <div>
-                                <span className="font-medium">Société:</span> {user.societe || 'Non renseigné'}
-                              </div>
-                              <div>
+
+                            {/* Heures alignées côte à côte */}
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs md:text-sm mb-1">
+                              <span className={`font-medium ${
+                                user.arriveType === 'VERIFY' ? 'text-green-300' :
+                                user.arriveType === 'MANUAL' ? 'text-blue-300' :
+                                'text-orange-300'
+                              }`}>
+                                {new Date(user.heureArrivee).toLocaleString('fr-FR')}
+                              </span>
+                              <span className="text-white/30">→</span>
+                              {user.heureDepart ? (
                                 <span className={`font-medium ${
-                                  user.arriveType === 'VERIFY' ? 'text-green-300' :
-                                  user.arriveType === 'MANUAL' ? 'text-blue-300' :
+                                  user.departType === 'VERIFY' ? 'text-green-300' :
+                                  user.departType === 'MANUAL' ? 'text-blue-300' :
                                   'text-orange-300'
                                 }`}>
-                                  {new Date(user.heureArrivee).toLocaleString('fr-FR')}
+                                  {new Date(user.heureDepart).toLocaleString('fr-FR')}
                                 </span>
-                              </div>
-                              <div>
-                                {user.heureDepart ? (
-                                  <span className={`font-medium ${
-                                    user.departType === 'VERIFY' ? 'text-green-300' :
-                                    user.departType === 'MANUAL' ? 'text-blue-300' :
-                                    'text-orange-300'
-                                  }`}>
-                                    {new Date(user.heureDepart).toLocaleString('fr-FR')}
-                                  </span>
-                                ) : (
-                                  <span className="text-white/50 font-medium">En cours</span>
-                                )}
-                              </div>
+                              ) : (
+                                <span className="text-white/40 font-medium">En cours</span>
+                              )}
                             </div>
-                            <div className="mt-2 flex flex-wrap items-center gap-3 text-white/60 text-xs">
+
+                            {/* Appareil + Zone */}
+                            <div className="flex flex-wrap items-center gap-2 text-white/60 text-[10px] md:text-xs">
                               <div className="flex items-center gap-1">
-                                <Smartphone className="w-3 h-3 text-emerald-300" />
-                                <span className="font-medium">Appareil :</span>
-                                <span>
-                                  {user.apareil
-                                    ? `${user.apareil.nom} (ID #${user.apareil.id})`
-                                    : 'Inconnu'}
+                                <Smartphone className="w-3 h-3 text-emerald-300 shrink-0" />
+                                <span className="truncate max-w-[90px] md:max-w-none">
+                                  {user.apareil ? `${user.apareil.nom} (ID #${user.apareil.id})` : 'Inconnu'}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
-                                <Signpost className="w-3 h-3 text-indigo-300" />
-                                <span className="font-medium">Zone :</span>
-                                <span>
-                                  {user.zone?.nom ??
-                                    user.apareil?.zone?.nom ??
-                                    'Pas de zone attribuée'}
+                                <Signpost className="w-3 h-3 text-indigo-300 shrink-0" />
+                                <span className="truncate max-w-[90px] md:max-w-none">
+                                  {user.zone?.nom ?? user.apareil?.zone?.nom ?? 'Pas de zone attribuée'}
                                 </span>
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <motion.button
-                              onClick={() => handleEditUser(user)}
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
-                              title="Modifier les heures"
+
+                          {/* Menu déroulant actions — centré verticalement */}
+                          <div className="relative shrink-0 self-center">
+                            <button
+                              onClick={() => setOpenMenuUserId(openMenuUserId === user.id ? null : user.id)}
+                              className="p-1.5 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                              title="Actions"
                             >
-                              <Edit className="w-4 h-4" />
-                            </motion.button>
-                            <motion.button
-                              onClick={() => setSelectedUser(selectedUser?.id === user.id ? null : user)}
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition-all duration-200"
-                              title="Voir les détails"
-                            >
-                              {selectedUser?.id === user.id ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </motion.button>
-                            <motion.button
-                              onClick={() => setUserToDelete(user)}
-                              whileHover={{ scale: 1.1 }}
-                              whileTap={{ scale: 0.9 }}
-                              className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-200"
-                              title="Supprimer le visiteur"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </motion.button>
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+                              </svg>
+                            </button>
+                            {openMenuUserId === user.id && (
+                              <div className="absolute right-0 top-8 bg-slate-900 border border-white/20 rounded-xl shadow-2xl overflow-hidden min-w-[155px]" style={{ zIndex: 9999 }}>
+                                <button
+                                  onClick={() => { handleEditUser(user); setOpenMenuUserId(null); }}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-blue-400 hover:bg-white/10 transition-colors text-xs font-medium"
+                                >
+                                  <Edit className="w-3.5 h-3.5" /> Modifier les heures
+                                </button>
+                                <button
+                                  onClick={() => { setSelectedUser(selectedUser?.id === user.id ? null : user); setOpenMenuUserId(null); }}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-yellow-400 hover:bg-white/10 transition-colors text-xs font-medium"
+                                >
+                                  {selectedUser?.id === user.id ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                  {selectedUser?.id === user.id ? 'Masquer' : 'Voir détails'}
+                                </button>
+                                <button
+                                  onClick={() => { setUserToDelete(user); setOpenMenuUserId(null); }}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-red-400 hover:bg-red-500/10 transition-colors text-xs font-medium border-t border-white/10"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" /> Supprimer
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
 

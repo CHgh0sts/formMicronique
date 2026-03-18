@@ -82,7 +82,7 @@ export default function Home() {
             </div>
 
             {/* Boutons d'action modernes */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-row gap-4">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -90,13 +90,13 @@ export default function Home() {
               >
                 <Link 
                   href="/arrivee" 
-                  className="group w-full flex items-center justify-center sm:justify-between px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="group w-full flex items-center justify-between px-4 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  <span className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse shrink-0" />
                     Arrivée
                   </span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200 hidden sm:block" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200 shrink-0" />
                 </Link>
               </motion.div>
 
@@ -107,13 +107,13 @@ export default function Home() {
               >
                 <Link 
                   href="/depart" 
-                  className="group w-full flex items-center justify-center sm:justify-between px-6 py-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
+                  className="group w-full flex items-center justify-between px-4 py-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-semibold rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  <span className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-white rounded-full" />
+                  <span className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-white rounded-full shrink-0" />
                     Départ
                   </span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200 hidden sm:block" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200 shrink-0" />
                 </Link>
               </motion.div>
             </div>

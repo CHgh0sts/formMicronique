@@ -95,6 +95,7 @@ export default function ArriveePage() {
       });
 
       if (response.ok) {
+        try { new Audio('/audio/correct.mp3').play(); } catch {}
         toast.success('Arrivée enregistrée avec succès !', {
           description: `Bienvenue ${userData.prenom} ${userData.nom}`,
           duration: 3000,
