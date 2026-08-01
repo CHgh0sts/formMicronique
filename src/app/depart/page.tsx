@@ -324,7 +324,7 @@ export default function DepartPage() {
               <div className="flex justify-center mb-4">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-rose-500 rounded-xl blur-lg opacity-30" />
-                  <div className="relative bg-white/90 backdrop-blur-sm rounded-xl p-2">
+                  <div data-secret-toggle className="relative bg-white/90 backdrop-blur-sm rounded-xl p-2">
                     <Image 
                       src="/images/logo.png" 
                       alt="logo" 

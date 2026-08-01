@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { isSiteActive } from '@/lib/siteConfig'
 
 // POST - Enregistrer le départ d'un utilisateur
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isSiteActive())) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     const { userId } = body
 
@@ -54,6 +62,13 @@ export async function POST(request: NextRequest) {
 // GET - Rechercher un utilisateur pour le départ
 export async function GET(request: NextRequest) {
   try {
+    if (!(await isSiteActive())) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     const { searchParams } = new URL(request.url)
     const nom = searchParams.get('nom')
     const prenom = searchParams.get('prenom')

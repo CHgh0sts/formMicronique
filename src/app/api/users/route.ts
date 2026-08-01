@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/prisma'
+import { isSiteActive } from '@/lib/siteConfig'
 
 // Fonction pour vérifier et mettre à jour les départs automatiques
 async function checkAndUpdateAutoDepartures() {
@@ -57,6 +58,13 @@ async function checkAndUpdateAutoDepartures() {
 // GET - Récupérer les utilisateurs avec filtres optionnels
 export async function GET(request: NextRequest) {
   try {
+    if (!(await isSiteActive())) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     // Vérifier et mettre à jour les départs automatiques à chaque requête GET
     await checkAndUpdateAutoDepartures();
 
@@ -138,6 +146,13 @@ export async function GET(request: NextRequest) {
 // POST - Enregistrer l'arrivée d'un visiteur
 export async function POST(request: NextRequest) {
   try {
+    if (!(await isSiteActive())) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     const body = await request.json()
     const { nom, prenom, societe, reponses } = body
 

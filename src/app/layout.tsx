@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import DeviceInitializer from "@/components/DeviceInitializer";
 import PwaInitializer from "@/components/PwaInitializer";
+import SecretSiteToggle from "@/components/SecretSiteToggle";
+import SiteGate from "@/components/SiteGate";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -54,8 +56,11 @@ export default function RootLayout({
     <html lang="fr">
       <body className={`${inter.className} antialiased`}>
         <PwaInitializer />
-        <DeviceInitializer />
-        {children}
+        <SecretSiteToggle />
+        <SiteGate>
+          <DeviceInitializer />
+          {children}
+        </SiteGate>
         <Toaster
           position="bottom-right"
           richColors

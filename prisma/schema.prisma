@@ -99,3 +99,11 @@ enum EntryType {
   MANUAL // Modifié manuellement
   AUTO // Automatique (pour les départs auto-générés)
 }
+
+model SiteConfig {
+  id        Int      @id @default(1)
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@map("site_config")
+}

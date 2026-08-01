@@ -69,7 +69,7 @@ export default function Home() {
             <div className="flex justify-center mb-8">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur-lg opacity-30" />
-                <div className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-4">
+                <div data-secret-toggle className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-4">
                   <Image 
                     src="/images/logo.png" 
                     alt="logo" 
