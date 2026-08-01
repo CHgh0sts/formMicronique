@@ -27,6 +27,16 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Empêche le menu contextuel / callout tactile sur les zones du kill-switch */
+[data-secret-toggle],
+[data-secret-toggle] * {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+  touch-action: manipulation;
+}
+
 /* Styles pour la scrollbar personnalisée - Design glassmorphism */
 ::-webkit-scrollbar {
   width: 8px;

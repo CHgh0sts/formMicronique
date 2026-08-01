@@ -17,9 +17,8 @@ export async function POST() {
     return NextResponse.json({ isActive: config.isActive })
   } catch (error) {
     console.error('Erreur site-status POST:', error)
-    return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 }
-    )
+    const message =
+      error instanceof Error ? error.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

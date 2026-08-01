@@ -1,13 +1,38 @@
 import { prisma } from '@/lib/prisma'
 
-export async function getOrCreateSiteConfig() {
-  let config = await prisma.siteConfig.findUnique({ where: { id: 1 } })
-  if (!config) {
-    config = await prisma.siteConfig.create({
-      data: { id: 1, isActive: true },
+let tableReady: Promise<void> | null = null
+
+async function ensureSiteConfigTable() {
+  if (!tableReady) {
+    tableReady = (async () => {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS "site_config" (
+          "id" INTEGER NOT NULL DEFAULT 1,
+          "isActive" BOOLEAN NOT NULL DEFAULT true,
+          "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          CONSTRAINT "site_config_pkey" PRIMARY KEY ("id")
+        );
+      `)
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "site_config" ("id", "isActive", "updatedAt")
+        VALUES (1, true, CURRENT_TIMESTAMP)
+        ON CONFLICT ("id") DO NOTHING;
+      `)
+    })().catch((err) => {
+      tableReady = null
+      throw err
     })
   }
-  return config
+  await tableReady
+}
+
+export async function getOrCreateSiteConfig() {
+  await ensureSiteConfigTable()
+  return prisma.siteConfig.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1, isActive: true },
+  })
 }
 
 export async function isSiteActive(): Promise<boolean> {
@@ -21,6 +46,7 @@ export async function isSiteActive(): Promise<boolean> {
 }
 
 export async function toggleSiteActive() {
+  await ensureSiteConfigTable()
   const current = await getOrCreateSiteConfig()
   return prisma.siteConfig.update({
     where: { id: 1 },

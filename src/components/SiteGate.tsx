@@ -18,10 +18,18 @@ function FakeAppError() {
         </p>
         <button
           type="button"
-          onClick={() => {
-            /* volontairement inerte */
+          data-secret-toggle
+          onClick={(e) => {
+            // Inerte pour un clic normal ; le kill-switch écoute les taps via data-secret-toggle
+            e.preventDefault()
           }}
-          className="px-4 py-2 text-sm rounded-md border border-[#333] bg-[#111] text-[#ccc] hover:bg-[#1f1f1f] transition-colors"
+          className="px-4 py-2.5 text-sm rounded-md border border-[#333] bg-[#111] text-[#ccc] hover:bg-[#1f1f1f] transition-colors select-none"
+          style={{
+            WebkitTouchCallout: 'none',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+            touchAction: 'manipulation',
+          }}
         >
           Retry
         </button>
